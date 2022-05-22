@@ -42,7 +42,6 @@ def tiempoaGrados(cadena, tipo = "dec"):
     
     for val in cadena:
         llaves=list(vals.keys())
-        print(val)
         
         if val[-1].lower() in conv.keys():
             
@@ -52,14 +51,15 @@ def tiempoaGrados(cadena, tipo = "dec"):
                 vals[val[-1].lower()][0]*=esc
             
         elif tipo == "dec":
-            vals[llaves[i]][0]=float(val[0:])
             
-            if i >= 1:
-                vals[llaves[i]][0]*=esc
+            if i == 0:
+                vals["d"][0]=float(val[0:])
                 
-            
+            else:
+                vals[llaves[i]][0]=float(val[0:])*esc
+                         
         else:
-            print(tipo[i])
+            esc=15
             vals[llaves[i]][0]=float(val[0:])
             
             if i >= 1:
