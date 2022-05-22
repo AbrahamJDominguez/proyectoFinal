@@ -27,7 +27,7 @@ def tiempoaGrados(cadena, tipo = "dec"):
     if "h" in cadena or tipo == "ra":
         esc=15
 
-        
+    cadena=cadena.replace("'\"","m 30s")    
     cadena=cadena.replace("°", "d").replace("''","s").replace("′", "m").replace("″", "s").replace("'", "m")
     
     cadena=cadena.replace(u"\xa0",u" ")
