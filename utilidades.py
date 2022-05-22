@@ -13,8 +13,9 @@ ds=1/3600
 
 conv={"h":dh,"m":dm,"s":ds,"d":dd}
 
-def tiempoaGrados(cadena, tipo = "hms"):
+def tiempoaGrados(cadena, tipo = "dec"):
     neg=False
+    esc=1
     
     if cadena[0] == "-":
         neg=True
@@ -23,17 +24,17 @@ def tiempoaGrados(cadena, tipo = "hms"):
     if " " not in cadena and (len(cadena.split("°")) >= 2 or len(cadena.split("h")) >= 2):
         cadena=cadena.replace("°","° ").replace("m","m ").replace("h","h ")
         
+    if "h" in cadena or tipo == "ra":
+        esc=15
+
+        
     cadena=cadena.replace("°", "d").replace("''","s").replace("′", "m").replace("″", "s").replace("'", "m")
     
     cadena=cadena.replace(u"\xa0",u" ")
     cadena=cadena.split(" ")
-    
-    print(cadena)
-    
+   
     while "" in cadena:
         cadena.remove("")
-        
-    print(cadena)
     
     h,m,s,d=[0],[0],[0],[0]
     vals={"h":h,"m":m,"s":s,"d":d}
@@ -41,19 +42,32 @@ def tiempoaGrados(cadena, tipo = "hms"):
     
     for val in cadena:
         llaves=list(vals.keys())
+        print(val)
         
         if val[-1].lower() in conv.keys():
             
             vals[val[-1].lower()][0]=float(val[0:-1])
             
-        elif tipo == "hms":
+            if i >= 1:
+                vals[val[-1].lower()][0]*=esc
+            
+        elif tipo == "dec":
             vals[llaves[i]][0]=float(val[0:])
             
+            if i >= 1:
+                vals[llaves[i]][0]*=esc
+                
+            
         else:
-            vals[tipo[i]][0]=float(val[0:])
+            print(tipo[i])
+            vals[llaves[i]][0]=float(val[0:])
+            
+            if i >= 1:
+                vals[llaves[i]][0]*=esc
             
         i+=1  
-            
+        
+    
     d=h[0]*dh+m[0]*dm+s[0]*ds+d[0]
     
     if neg:
@@ -70,10 +84,10 @@ if __name__=="__main__":
     #with open("constelaciones/Hydra.csv", "r", encoding="utf-16") as archivo:
     datos=pd.read_csv("constelaciones/Andromeda.csv", sep="\t", encoding="utf-16")
     #datos.close()
-    print(tiempoaGrados("16h23.6m"))
+    print(tiempoaGrados("5h 34.5m"))
     
     datos=pd.read_csv("MessierCatalogList.csv", sep=",", encoding="utf-8")
     
-    print(datos["DEC"])
+    print(datos["RA"])
         # llaves=next(datos)
         # print(llaves)
