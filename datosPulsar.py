@@ -19,6 +19,9 @@ def creaBasePulsar():
     cambio=cambio.replace("<colgroup><col/><col align=\"left\"/><col align=\"right\"/><col/><col align=\"left\"/><col align=\"left\"/><col align=\"right\"/><col align=\"right\"/></colgroup>",
                           "")
     
+    cambio=cambio.replace(r"hm","h")
+    cambio=re.sub(r"ms<br/>","m</td><td>",cambio)
+    cambio=re.sub(r"[^a-z]h<br/>","h</td><td>",cambio)
     cambio=re.sub(r"[^a-z]m<br/>","m</td><td>",cambio)
     cambio=re.sub(r"[^a-z]s<br/>","s</td><td>",cambio)
     
