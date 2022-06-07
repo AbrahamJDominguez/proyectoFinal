@@ -14,6 +14,7 @@ ds=1/3600
 conv={"h":dh,"m":dm,"s":ds,"d":dd}
 
 def tiempoaGrados(cadena, tipo = "dec"):
+    
     neg=False
     esc=1
     
@@ -26,7 +27,7 @@ def tiempoaGrados(cadena, tipo = "dec"):
         
     if "h" in cadena or tipo == "ra":
         esc=15
-
+        
     cadena=cadena.replace("'\"","m 30s")    
     cadena=cadena.replace("°", "d").replace("''","s").replace("′", "m").replace("″", "s").replace("'", "m")
     
@@ -38,6 +39,7 @@ def tiempoaGrados(cadena, tipo = "dec"):
     
     h,m,s,d=[0],[0],[0],[0]
     vals={"h":h,"m":m,"s":s,"d":d}
+    
     i=0
     
     for val in cadena:
@@ -69,11 +71,19 @@ def tiempoaGrados(cadena, tipo = "dec"):
         
     
     d=h[0]*dh+m[0]*dm+s[0]*ds+d[0]
-    
+
     if neg:
         d=-d
         
     return d
+
+def isfloat(cadena):
+    try:
+        float(cadena)
+        return True
+    
+    except:
+        return False
         
         
 if __name__=="__main__":

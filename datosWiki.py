@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 #URL = "https://en.wikipedia.org/wiki/List_of_stars_in_Andromeda"
-URL = "https://en.wikipedia.org/wiki/6_Lyn"
+URL = "https://en.wikipedia.org/wiki/14_And"
 page = requests.get(URL)
 
 #Creamos una variable de tipo beatiful soup para poder manejar los datos como
@@ -28,7 +28,6 @@ tabla=soup.find("table", class_="infobox")
 #convertimos a un arreglo de numpy para optimizar el tiempo
 tab=pd.read_html(str(tabla))[0].to_numpy()
 #print(type(pd.read_html(str(tabla))[0]))
-
 #Caso en que se busca de forma especifica
 ar=np.where(tab == "Right ascension")
 dec=np.where(tab == "Declination")
@@ -70,16 +69,34 @@ def obtenerEstrellaE(nombre):
         tabla=soup.find("table", class_="infobox")
         
     except ValueError:
-        return "25 60 60", "25 60 60"
+        return False
     
     
     
     tab=pd.read_html(str(tabla))[0].to_numpy()
     ar=np.where(tab == "Right ascension")
     dec=np.where(tab == "Declination")
-    print(tab[ar[0][0]][ar[1][0]+1], tab[dec[0][0]][dec[1][0]+1])
+    temptidx=np.where(tab == "Temperature")
+    radidx=np.where(tab == "Radius")  
     
-    return tab[ar[0][0]][ar[1][0]+1].replace(u"\xa0",u" "), tab[dec[0][0]][dec[1][0]+1].replace(u"\xa0",u" ")
+    rad=0
+    tempt=0
+    
+    if temptidx[0].size > 0:
+        if "±" in tab[temptidx[0][0]][temptidx[1][0]+1]:
+            idx=tab[temptidx[0][0]][temptidx[1][0]+1].index("±")
+            tempt=tab[temptidx[0][0]][temptidx[1][0]+1][0:idx].replace(u"\xa0",u" ").replace(u",","")
+            
+    if radidx[0].size > 0:
+        if "±" in tab[radidx[0][0]][radidx[1][0]+1]:
+            idx=tab[radidx[0][0]][radidx[1][0]+1].index("±")
+            rad=tab[radidx[0][0]][radidx[1][0]+1][0:idx].replace(u"\xa0",u" ").replace(u",","")
+        
+    
+    
+    return tab[ar[0][0]][ar[1][0]+1]\
+            .replace(u"\xa0",u" "), tab[dec[0][0]][dec[1][0]+1]\
+                .replace(u"\xa0",u" "), tempt, rad
     
     
 
@@ -189,7 +206,7 @@ def creaArchivoWikiTabla(tabla, nombre="constelaciones", ruta=""):
     if ruta and ruta[-1] != "/":
         ruta=ruta+"/"
         
-    with open(ruta+nombre+".csv", "wb") as archivo:#, errors='backslashreplace')
+    with open(ruta+nombre+".csv", "wb") as archivo:
         archivo.write(cadena)
 
 
@@ -214,11 +231,9 @@ if __name__ == "__main__":
     
     creaArchivoWikiTabla(const)
     
-    l=["1","2","3","4"]
+    obtenerEstrellaE("6_Lyncis")
     
-    print(",".join(l))
-    
-    print(obtenerEstrellaE("6 Lyn"))
+    #print(obtenerEstrellaE("11_Com"))
     
     
     
