@@ -5,32 +5,32 @@ import numpy as np
 import os
 
 #URL = "https://en.wikipedia.org/wiki/List_of_stars_in_Andromeda"
-URL = "https://en.wikipedia.org/wiki/14_And"
-page = requests.get(URL)
+#URL = "https://en.wikipedia.org/wiki/14_And"
+#page = requests.get(URL)
 
 #Creamos una variable de tipo beatiful soup para poder manejar los datos como
 #si se tratara de la pagina (nos facilita encontrar tablas o elementos de la pagina)
-soup = BeautifulSoup(page.content, "lxml")
+#soup = BeautifulSoup(page.content, "lxml")
 
 
 #Eliminamos las referencias
-for tag in soup.find_all(class_="reference"):
-        tag.decompose()
+#for tag in soup.find_all(class_="reference"):
+#        tag.decompose()
 #print(soup)
 
 #Caso en que se busca de forma especifica un objeto 
 #Se busca una caja de informacion
-tabla=soup.find("table", class_="infobox")
+#tabla=soup.find("table", class_="infobox")
 
 #Caso general para tablas con muchos objetos
 #tab=pd.read_html(str(tabla))[0][0:-2]
 
 #convertimos a un arreglo de numpy para optimizar el tiempo
-tab=pd.read_html(str(tabla))[0].to_numpy()
+#tab=pd.read_html(str(tabla))[0].to_numpy()
 #print(type(pd.read_html(str(tabla))[0]))
 #Caso en que se busca de forma especifica
-ar=np.where(tab == "Right ascension")
-dec=np.where(tab == "Declination")
+#ar=np.where(tab == "Right ascension")
+#dec=np.where(tab == "Declination")
 
 #Caso en que se usan las tablas, en este caso podemos acceder a los datos con llaves
 #print(tab["RA"].to_numpy())
@@ -67,13 +67,11 @@ def obtenerEstrellaE(nombre):
     
     try:     
         tabla=soup.find("table", class_="infobox")
+        tab=pd.read_html(str(tabla))[0].to_numpy()
         
     except ValueError:
         return False
     
-    
-    
-    tab=pd.read_html(str(tabla))[0].to_numpy()
     ar=np.where(tab == "Right ascension")
     dec=np.where(tab == "Declination")
     temptidx=np.where(tab == "Temperature")
@@ -231,7 +229,7 @@ if __name__ == "__main__":
     
     creaArchivoWikiTabla(const)
     
-    obtenerEstrellaE("6_Lyncis")
+    obtenerEstrellaE("888888")
     
     #print(obtenerEstrellaE("11_Com"))
     

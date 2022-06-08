@@ -31,6 +31,13 @@ class grafica:
     def mapaEstelar(self, ar, dec, objeto=[], indice="", colores=[], teff=[], ob=False, guardar=False, limpiar = False):
         
         #self.llamadaInterfaz()
+        for i in ar:
+            if i > 360:
+                ar[ar.index(i)]=i-360
+                
+            elif i < 0:
+                ar[ar.index(i)]=i+360
+                
         if limpiar:
             self.reiniciarFigura()
          #usuario ingresa coordenadas, elige objeto
@@ -47,13 +54,16 @@ class grafica:
                     continue
                 self.ax.scatter(ar[i], dec[i], s=2, color='r')
                 
-        if ob:
+        elif ob:
             
             for i in range(len(teff)):
                 if teff and colores:
                     self.ax.scatter(ar[i], dec[i], s=2, color=colores[round(teff[i]*0.01)*100])
                     continue
                 self.ax.scatter(ar[i], dec[i], s=2, color='r')
+                
+        else:
+            self.ax.scatter(ar, dec, s=2, color='r')
         
         #self.ax.set_xlim(45,50)
         #self.ax.set_ylim(2,6)
