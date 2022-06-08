@@ -1,6 +1,6 @@
 import numpy as np
 import lecturaArchivos as lectura
-import graficas as Graf
+import graficas as graf
 #ruta = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/"
 ruta = ""#"C:/Users/sandy/Documents/Pooye/proyectoFinal-main"
 lectura = lectura.lecturaArchivos(ruta)
@@ -8,7 +8,8 @@ name, sep, enc = lectura.inicializar()
 
 class coordenadas():
     def __init__(self,ar,dec,radio):
-        pass
+        self.ar=ar
+        self.dec=dec
     
     def entradaC(self):
         print("Indica las coordenadas y el radio de busqueda de objetos estelares. ")
@@ -45,16 +46,16 @@ class objetoEstelar():                      # Clase padre
         self.ar = arObjeto
         self.dec = decObjeto
         
-    def crearMapaEstelar(self):
-        print("""
-    =====================================================
-                    Gráficas de Gaia Archive
-    1. Mapa estelar de todos objetos cercanos.
-    2. Mapa estelar de pulsares.
-    3. Mapa estelar de constelaciones.
-    4. Mapa estelar de messier.
-    =====================================================""")
-        opcion = int(input("Seleccione una opcion: "))
+    def crearMapaEstelar(self, teff, objeto):
+        graficas = graf.grafica()        
+        if teff: 
+            graficas.mapaEstelar(self.ar, self.dec, [], indice = '', colores = [], teff=teff, ob = True, guardar = False )
+            
+        elif objeto: 
+            graficas.mapaEstelar(self.ar, self.dec, objeto = objeto, indice = '', colores = [], teff=[], ob = False, guardar = False )
+        else:
+            graficas.mapaEstelar(self.ar, self.dec, [], indice = '', colores = [], teff=[], ob = False, guardar = False )
+        
         
     
 class objetoLuminoso(objetoEstelar): ## modulo para estrellas cercanas a messier
@@ -107,13 +108,28 @@ class Planeta(objetoEstelar):
         print("Este es el numero de estrellas", self.nomE)
         
     def pl(self):
-        print("Estás en el módulo planeta, qué deseas hacer?")
-        print(self.ar,self.dec)
+        print("\n\n*****Estás en el módulo planeta******")
+        planetas = lectura.lecturaPlaneta(name[2], sep[2], enc[2])
+        ar = []
+        dec = []
+        objeto = [self.ar, self.dec, self.radio]
+        for i in planetas:
+            ar.append(i[0])
+            dec.append(i[1])
+        print("¿Qué deseas hacer?\n1. Mapa Estelar de todos los planetas disponibles")
+        opcion = int(input("Selección: "))
+        if opcion == 1:
+            objeto = objetoEstelar(ar,dec, [])
+            #objeto.crearMapaEstelar([], objeto) ### no toma objeto como debería para graficar el punto rojo del planeta
+            objeto.crearMapaEstelar([], [])
         
         # Gráfica que compare masas/ radios de planetas conocidos
         # Muestre los datos del sistema donde se encuentra (número de estrellas, planetas, nombres, etc.)
+        # Genera gráfica de sistema planetario
+        # Gráfica que compare masas/ radios de planetas conocidos
+        # Muestre los datos del sistema donde se encuentra (número de estrellas, planetas, nombres, etc.)
     def sistemaPlanetario(self):
-        plots = Graf.grafica()
+        plots = graf.grafica()
         fig, anim=plots.orbitas(self.numE, self.numP, [self.ar, self.dec], self.orbSMeje, self.e, self.radioE, self.radioT)
         return fig, anim
         # Genera gráfica de sistema planetario
@@ -143,9 +159,23 @@ class messier(objetoEstelar):
     #    print(self.ar,self.dec)
         
     def estrella(self,messier):
-        print("Estás en el modulo de estrellas cercanas al messier")
+        print("\n\n*****Estás en el modulo de estrellas cercanas al messier****")
         estrellasM = lectura.lecturaMessier(name[4], sep[4], enc[4])
-        print(estrellasM[messier+".csv"])
+        #print(estrellasM[messier+".csv"])
+        datos = estrellasM[messier+'.csv']
+        ar = []
+        dec = []
+        teff = []
+        for i in datos:
+            ar.append(i[0])
+            dec.append(i[1])
+            teff.append(i[-1])
+        print("¿Qué deseas hacer?\n1. Mapa Estelar de todas las estrellas disponibles dentro del messier")
+        opcion = int(input("Selección: "))
+        if opcion == 1:
+            objeto = objetoEstelar(ar,dec, [])
+            objeto.crearMapaEstelar(teff, [])
+        
 
 class constelacion(objetoEstelar):
     def __init__(self,ar,dec,radio,abrev,solidAA,solidAM,perc,quad):
@@ -167,11 +197,20 @@ class constelacion(objetoEstelar):
         Cn=lec.lecturaPlaneta(name,sep,enc)'''
         #print(Cn)
     def const(self, laConste):
-        print("Estás en el módulo constelacion, qué deseas hacer?")
+        print("\n\n******Estás en el módulo constelacion******")
         constel = lectura.estrellasXConstelacion(name[5], sep[5], enc[5])
-        print(constel[laConste+".csv"])
-        
-        
+        #print(constel[laConste+".csv"])
+        datos = constel[laConste+'.csv']
+        ar = []
+        dec = []
+        for i in datos:
+            ar.append(i[0])
+            dec.append(i[1])
+        print("¿Qué deseas hacer?\n1.Mapa Estelar de todas las estrellas disponibles dentro de la constelación")
+        opcion = int(input("Elección: "))
+        if opcion == 1:
+            objeto = objetoEstelar(ar, dec, [])
+            objeto.crearMapaEstelar([], [])
         # Graficar la posición de la constelación elegida con respecto a nosotros y las constelaciones que colindan con ella.
         # Sugerencia: preguntar al usuario si quiere ver un mapa con las contelaciones cercanas al objeto elegido
 

@@ -59,10 +59,29 @@ def datosIniciales():
     
     # Obtenemos los datos de cada catálogo (creamos objetos de la clase lecturaArchivos)
     messierCat = lectura.lecturaCatalogoM(name[0], sep[0], enc[0])
-    #pulsares = lectura.lecturaPulsar(name[1], sep[1], enc[1]) 
+    pulsares = lectura.lecturaPulsar(name[1], sep[1], enc[1]) 
     planetas = lectura.lecturaPlaneta(name[2], sep[2], enc[2])
     constelaciones = lectura.lecturaConstelacion(name[3], sep[3], enc[3])
     #estrellasM = lectura.lecturaMessier(name[4], sep[4], enc[4])
+    
+    messAr = []
+    messDec = []
+    for i in messierCat:
+        messAr.append(i[0])
+        messDec.append(i[1])
+
+    constAr = []
+    constDec = []
+    for i in constelaciones:
+        constAr.append(i[0])
+        constDec.append(i[1])
+    
+    pulsaresAr = []
+    pulsaresDec = []
+    for i in pulsares:
+        pulsaresAr.append(i[0])
+        pulsaresDec.append(i[1])
+
 
     # Buscamos objetos dentro del radio 
     """ A cada objeto le corresponde una lista de coordenadas """
@@ -146,8 +165,25 @@ pero el objeto podría estar en alguna de las siguientes constelaciones:""")
             constelacion.const(indiceC[opcion])
             
         elif opcion in mapa:
-            mapaEstelar = SO.objetoEstelar("ar", "dec", "radio")
-            mapaEstelar.crearMapaEstelar()
+            print("""
+=====================================================
+                Gráficas de Gaia Archive
+1. Mapa estelar de pulsares.
+2. Mapa estelar de constelaciones.
+3. Mapa estelar de messier.
+=====================================================""")
+            opcion = int(input("Seleccione una opcion: "))
+            if opcion == 1:
+                objeto = SO.objetoEstelar(pulsaresAr, pulsaresDec, [])
+                objeto.crearMapaEstelar([],[])
+            elif opcion == 2:
+                objeto = SO.objetoEstelar(constAr, constDec, [])
+                objeto.crearMapaEstelar([],[])
+            elif opcion == 3:
+                objeto = SO.objetoEstelar(messAr, messDec, [])
+                objeto.crearMapaEstelar([],[])
+            else: 
+                print("Opción no válida")
             
         else:
             coord = listaC[num]

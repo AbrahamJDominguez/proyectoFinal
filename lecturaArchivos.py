@@ -2,7 +2,6 @@
 """
 Created on Sat May 21 20:45:28 2022
 
-@author: Abrah
 """
 ############ MODULO DE LECTURA DE ARCHIVOS ##############
 import csv
@@ -108,7 +107,7 @@ class lecturaArchivos:
             
         return Cn
     
-    def lecturaMessier(self, name,sep,enc): # Estrellas cercanas a objetos Messier
+    def lecturaMessier(self, name,sep,enc, depurar=False): # Estrellas cercanas a objetos Messier
         listaMessier = []
         EM = {}
         
@@ -121,7 +120,15 @@ class lecturaArchivos:
             M = []
             
             for i,j,k,l,n in zip(datos["ra"], datos["dec"], datos["parallax"], datos["bp_rp"], datos["teff_val"]):
-                M.append((i,j,k,l,n))
+                if not depurar:
+                    M.append((i,j,k,l,n))
+                    
+                else:
+                    for i,j,k,l,n in zip(datos["ra"], datos["dec"], datos["parallax"], datos["bp_rp"], datos["teff_val"]):
+                        """ Para depurar la lista """
+                        if str(l) != 'nan':
+                            if str(n) != 'nan':
+                                M.append((i,j,k,l,n))
                 
             EM[num]=M
         
@@ -133,15 +140,23 @@ class lecturaArchivos:
         with os.scandir(rutaConste) as ficheros: # Extraemos lista con nombres de archivos
             for fichero in ficheros:
                 listaConste.append(str(fichero.name))
-
+                
         for num in listaConste:
             datos=pd.read_csv(name+num, sep=sep, encoding=enc)
             C = []
+            cambioRA, cambioDEC = [], []
             
+            for value in range(len(datos['RA'])): 
+                if ' s' in datos['RA'][value]:
+                    datos['RA'][value] = datos['RA'][value].replace(" s","s")
+                if ' ″' in datos['Dec'][value]:
+                    datos['Dec'][value] = datos['Dec'][value].replace(' ″','″')
+                cambioRA.append(Util.tiempoaGrados(datos['RA'][value], 'ra'))
+                cambioDEC.append(Util.tiempoaGrados(datos['Dec'][value], 'dec'))
             # CONVERTIR COORDENADAS A GRADOS
-            for i,j,k,l,n in zip(datos["RA"], datos["Dec"], datos["abs.mag."], datos["Sp. class"], datos["Name"]):
+            for i,j,k,l,n in zip(cambioRA, cambioDEC, datos["abs.mag."], datos["Sp. class"], datos["Name"]):
                 C.append((i,j,k,l,n))
-                
+
             EC[num] = C
         
         return EC

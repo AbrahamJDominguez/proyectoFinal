@@ -28,13 +28,14 @@ class grafica:
             self.fig, self.ax = plt.subplots()
         
     
-    def mapaEstelar(self, ar, dec, objeto, indice="", colores=[], teff=[], ob=False, guardar=False):
+    def mapaEstelar(self, ar, dec, objeto=[], indice="", colores=[], teff=[], ob=False, guardar=False, limpiar = False):
         
-        self.llamadaInterfaz()
-        
-        self.reiniciarFigura() #usuario ingresa coordenadas, elige objeto
-        
-        self.ax.scatter(ar, dec, s=2, color="blue")
+        #self.llamadaInterfaz()
+        if limpiar:
+            self.reiniciarFigura()
+         #usuario ingresa coordenadas, elige objeto
+        if len(colores) == 1:
+            self.ax.scatter(ar, dec, s=2, color=colores[0])
         
         self.ax.set_facecolor((0,0,0))
         
@@ -58,8 +59,9 @@ class grafica:
         #self.ax.set_ylim(2,6)
             
         #self.ax.scatter(229.6375, 2.0811, s=20, color=(1,1,1))
-        
+
         if objeto:
+            print('a')
             self.ax.scatter(objeto[0], objeto[1], s=3, color='r')
             #self.ax.axhline(y=objeto[1]-objeto[2], xmin=objeto[0]-objeto[2], xmax=objeto[0]+objeto[2],color="y")
             #self.ax.axhline(y=objeto[1]+objeto[2], xmin=objeto[0]-objeto[2], xmax=objeto[0]+objeto[2],color="y")
@@ -71,13 +73,14 @@ class grafica:
         self.ax.set_xlabel("Ascensión recta ($^o$)")
         self.ax.set_ylabel("Declinación ($^o$)")
         self.ax.set_title("Mapa estelar")
+
         
         if guardar:
             self.fig.savefig("mapaEstelar.jpg")
             
-        if not self.interfaz:
+        #if not self.interfaz:
             
-            plt.show()
+        plt.show()
             
         
         return self.fig

@@ -77,6 +77,14 @@ def tiempoaGrados(cadena, tipo):
         d=-d
         
     return d
+
+def isfloat(cadena):
+    try:
+        float(cadena)
+        return True
+
+    except:
+        return False
         
         
 if __name__=="__main__":
