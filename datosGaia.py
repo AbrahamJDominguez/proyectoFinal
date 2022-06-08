@@ -6,17 +6,32 @@ from lecturaArchivos import lecturaCatalogoM
 import os
 
 
-def solicitaDatosGaia(x1,x2,y1,y2, n=2000):
-    if x1 != x2 and y1 != y2:
-        job = Gaia.launch_job(f"SELECT Top {n} ra, dec, teff_val "
-                          "from gaiadr2.gaia_source "
-                          "WHERE ( "
-                          f"(ra BETWEEN {x1} AND {x2} AND dec BETWEEN {y1} AND {y2} AND teff_val > 0) "
-                          ")")
-        
-        #print(job.get_results().keys())
-        
-        return job.get_results()
+def solicitaDatosGaia(x1,x2,y1,y2=None,tipo="cuadro", n=2000):
+    
+    if tipo == "circ":
+        if y1 != 0:
+            job=Gaia.launch_job(f"SELECT Top {n} ra, dec, teff_val "
+                "WHERE "
+                "CONTAINS( "
+                "POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec), "
+                f"CIRCLE('ICRS',{x1},{x2},{y1})"
+                " )=1")
+            
+            return job.get_results()
+            
+    
+    elif tipo=="cuadro":
+        if x1 != x2 and y1 != y2:
+            job = Gaia.launch_job(f"SELECT Top {n} ra, dec, teff_val "
+                              "from gaiadr2.gaia_source "
+                              "WHERE ( "
+                              f"(ra BETWEEN {x1} AND {x2} AND dec BETWEEN {y1}\
+                                  AND {y2} AND teff_val > 0) "
+                              ")")
+            
+            #print(job.get_results().keys())
+            
+            return job.get_results()
     
 def solicitaMessiersGaia(messier):
     print(messier)
@@ -57,8 +72,6 @@ def solicitaMessiersGaia(messier):
     
     return job.get_results()
 
-def trabajoaCsv():
-    pass
         
     
 if __name__=="__main__":

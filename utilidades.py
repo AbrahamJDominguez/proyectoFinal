@@ -13,33 +13,34 @@ ds=1/3600
 
 conv={"h":dh,"m":dm,"s":ds,"d":dd}
 
-def tiempoaGrados(cadena, tipo = "dec"):
-    
+#def tiempoaGrados(cadena, tipo = "dec"):
+def tiempoaGrados(cadena, tipo):
     neg=False
     esc=1
+    
+    cadena=cadena.replace(u"\xa0",u" ")
     
     if cadena[0] == "-":
         neg=True
         cadena=cadena.replace("-", "")
         
-    if " " not in cadena and (len(cadena.split("°")) >= 2 or len(cadena.split("h")) >= 2):
-        cadena=cadena.replace("°","° ").replace("m","m ").replace("h","h ")
+    #if " " not in cadena and (len(cadena.split("°")) >= 2 or len(cadena.split("h")) >= 2):
+    if " " not in cadena:
+        cadena=cadena.replace("°","° ").replace("m","m ").replace("h","h ").replace("'\"","m 30s").replace("'","' ")
         
     if "h" in cadena or tipo == "ra":
         esc=15
-        
-    cadena=cadena.replace("'\"","m 30s")    
-    cadena=cadena.replace("°", "d").replace("''","s").replace("′", "m").replace("″", "s").replace("'", "m")
+
+       
+    cadena=cadena.replace("°", "d").replace("''","s").replace("′", "m").replace("″", "s").replace('"', "s").replace("'", "m")
     
-    cadena=cadena.replace(u"\xa0",u" ")
     cadena=cadena.split(" ")
-   
+    
     while "" in cadena:
         cadena.remove("")
     
     h,m,s,d=[0],[0],[0],[0]
     vals={"h":h,"m":m,"s":s,"d":d}
-    
     i=0
     
     for val in cadena:
@@ -71,19 +72,11 @@ def tiempoaGrados(cadena, tipo = "dec"):
         
     
     d=h[0]*dh+m[0]*dm+s[0]*ds+d[0]
-
+    
     if neg:
         d=-d
         
     return d
-
-def isfloat(cadena):
-    try:
-        float(cadena)
-        return True
-    
-    except:
-        return False
         
         
 if __name__=="__main__":
@@ -94,7 +87,7 @@ if __name__=="__main__":
     #with open("constelaciones/Hydra.csv", "r", encoding="utf-16") as archivo:
     datos=pd.read_csv("constelaciones/Andromeda.csv", sep="\t", encoding="utf-16")
     #datos.close()
-    print(tiempoaGrados("5h 34.5m"))
+    print(tiempoaGrados("5h 34.5m", 'ra'))
     
     datos=pd.read_csv("MessierCatalogList.csv", sep=",", encoding="utf-8")
     
