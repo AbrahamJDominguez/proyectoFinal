@@ -10,9 +10,11 @@ from tkinter import ttk
 from utilidades import tiempoaGrados, isfloat
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from datosGaia import solicitaDatosGaia
+import numpy as np
 
 #heredamos de la clase tk para poder crear una ventana principal y configurarla desde afuera
 #de la misma forma que se haría con el Tk normal
@@ -68,7 +70,7 @@ class ventanaPrincipal(tk.Tk):
         self.fh.place(relx=0.75, rely=0, relheight=1, relwidth=0.25)
         self.entradas()
         self.checks()
-        self.botones()
+        #self.botones()
         self.listasDesplegables()
         
     def entradas(self):
@@ -124,52 +126,56 @@ class ventanaPrincipal(tk.Tk):
         ttk.Separator(frame_entrys, orient="horizontal")\
             .place(relx=0, rely=1, relwidth=1)
             
-        def revisar():
-            ra=self.ent_ar.get()
-            dec=self.ent_dec.get()
-            
-            limx=self.ent_tamx.get()
-            limy=self.ent_tamy.get()
-            
-            rad=self.ent_rad.get()
-            
-            try:
-                x=tiempoaGrados(ra)
-                y=tiempoaGrados(dec)
-                self.centro=(x,y)
                 
-                if not isfloat(limx) and not isfloat(rad):
-                    xlim=tiempoaGrados(limx)
-                    self.xlim=(min(x-xlim/2, x+xlim/2),max(x-xlim/2, x+xlim/2))
-                    
-                elif isfloat(limx) and not isfloat(rad):
-                    xlim=float(limx)
-                    self.xlim=(min(x-xlim/2, x+xlim/2),max(x-xlim/2, x+xlim/2))      
-                    
-                if not isfloat(limy) and not isfloat(rad):
-                    ylim=tiempoaGrados(limy)
-                    self.ylim=(min(y-ylim/2, y+ylim/2),max(y-ylim/2, y+ylim/2))
-                    
-                elif isfloat(limy) and not isfloat(rad):
-                    ylim=float(limy)
-                    self.ylim=(min(y-ylim/2, y+ylim/2),max(y-ylim/2, y+ylim/2))
-                    
-                if isfloat(rad):
-                    self.rad=float(rad)
-                    
-                self.elec_const.set("")
-                self.elec_messier.set("")
-                    
-                self.cambio()
-                
-            except ValueError:
-                print("Los datos ingresados no son validos")
-                
-            except IndexError:
-                print("Los cuadros no fueron llenados")
-                
-        tk.Button(frame_entrys, text="Ingresar", command=revisar)\
+        tk.Button(frame_entrys, text="Ingresar", command=self.revisar)\
             .place(relx=0.82, rely=0.75,width=52)
+            
+    def revisar(self):
+        ra=self.ent_ar.get()
+        dec=self.ent_dec.get()
+        
+        limx=self.ent_tamx.get()
+        limy=self.ent_tamy.get()
+        
+        rad=self.ent_rad.get()
+        
+        try:
+            x=tiempoaGrados(ra)
+            y=tiempoaGrados(dec)
+            self.centro=(x,y)
+            
+            if not isfloat(limx) and not isfloat(rad):
+                xlim=tiempoaGrados(limx)
+                self.xlim=(min(x-xlim/2, x+xlim/2),max(x-xlim/2, x+xlim/2))
+                
+            elif isfloat(limx) and not isfloat(rad):
+                xlim=float(limx)
+                self.xlim=(min(x-xlim/2, x+xlim/2),max(x-xlim/2, x+xlim/2))      
+                
+            if not isfloat(limy) and not isfloat(rad):
+                ylim=tiempoaGrados(limy)
+                self.ylim=(min(y-ylim/2, y+ylim/2),max(y-ylim/2, y+ylim/2))
+                
+            elif isfloat(limy) and not isfloat(rad):
+                ylim=float(limy)
+                self.ylim=(min(y-ylim/2, y+ylim/2),max(y-ylim/2, y+ylim/2))
+                
+            if isfloat(rad):
+                rad=float(rad)
+                self.rad=rad
+                self.xlim=(min(x-rad, x+rad),max(x-rad, x+rad))
+                self.ylim=(min(y-rad, y+rad),max(y-rad, y+rad))
+                
+            self.elec_const.set("")
+            self.elec_messier.set("")
+                
+            self.cambio("mapad")
+            
+        except ValueError:
+            print("Los datos ingresados no son validos")
+            
+        except IndexError:
+            print("Los cuadros no fueron llenados")
         
     def checks(self):
         estilo=ttk.Style()
@@ -191,19 +197,19 @@ class ventanaPrincipal(tk.Tk):
                         variable=self.pal_est,
                         onvalue=1,
                         offvalue=0, style="P.TCheckbutton",
-                        command=self.cambio).place(relx=0.15, rely=0.3)
+                        command=lambda: self.cambio("mapad")).place(relx=0.15, rely=0.3)
         
-        ttk.Checkbutton(frame_checks, text="Planetas",
-                        variable=self.pal_plnt,
-                        onvalue=1,
-                        offvalue=0, style="P.TCheckbutton",
-                        command=self.cambio).place(relx=0.15, rely=0.5)
+        # ttk.Checkbutton(frame_checks, text="Planetas",
+        #                 variable=self.pal_plnt,
+        #                 onvalue=1,
+        #                 offvalue=0, style="P.TCheckbutton",
+        #                 command=lambda: self.cambio("mapad")).place(relx=0.15, rely=0.5)
         
         ttk.Checkbutton(frame_checks, text="Pulsares",
                         variable=self.pal_psr,
                         onvalue=1,
                         offvalue=0, style="P.TCheckbutton",
-                        command=self.cambio).place(relx=0.15, rely=0.7)
+                        command=lambda: self.cambio("mapad")).place(relx=0.15, rely=0.7)
         
     def botones(self):
         frame_botones=tk.Frame(self.fh, bg="#b9b9b9")
@@ -250,7 +256,7 @@ class ventanaPrincipal(tk.Tk):
         caja_m["state"]="readonly"
         caja_m.place(relx=0.35, rely=0.3, height=20, width=82)
         
-        tk.Button(frame_listas, text="Mostrar elección", command=self.cambio)\
+        tk.Button(frame_listas, text="Mostrar elección", command=lambda: self.cambio("espC"))\
             .place(relx=0.33, rely=0.6)
         
     def listaMessiers(self):
@@ -277,7 +283,7 @@ class ventanaPrincipal(tk.Tk):
         caja_m["state"]="readonly"
         caja_m.place(relx=0.35, rely=0.3, height=20, width=82)
         
-        tk.Button(frame_listas, text="Mostrar elección", command=self.cambio)\
+        tk.Button(frame_listas, text="Mostrar elección", command=lambda: self.cambio("espM"))\
             .place(relx=0.33, rely=0.6)
             
     def busqueda(self, archivo, nombreArchivo, tipo="circ"): # Busca todos los objetos cercanos a las coordenadas escritas
@@ -288,8 +294,8 @@ class ventanaPrincipal(tk.Tk):
             
             if tipo == "circ":
                 if nombreArchivo == 'constelaciones':
-                    radio = 60
-                    if ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2) <= float(radio)**2:
+
+                    if ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2) <= float(self.rad)**2:
                         nombre_aux = [archivo[index][-2], archivo[index][-1]]
                         nombres.append(nombre_aux)
                         lista_index.append(index)
@@ -311,7 +317,6 @@ class ventanaPrincipal(tk.Tk):
         
             elif tipo == "rec":
                 if nombreArchivo == 'constelaciones':
-                    radio = 60
                     if (float(self.xlim[0]) < (archivo[index][0]) and float(self.xlim[1]) > (archivo[index][0])) and \
                     (archivo[index][1] > float(self.ylim[0]) and archivo[index][1] < float(self.ylim[1])) :
                         nombre_aux = [archivo[index][-2], archivo[index][-1]]
@@ -321,7 +326,7 @@ class ventanaPrincipal(tk.Tk):
                         
                 elif nombreArchivo == 'MessierCatalogo':
                     distancia = ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2)**(1/2)
-                    if distancia < min(self.xlim+self.ylim) + float(archivo[index][2]):
+                    if max(float(archivo[index][2]),abs(min(self.xlim+self.ylim))) > distancia:
                         print(distancia, float(self.rad) + float(archivo[index][2]))
                         nombres.append(archivo[index][-1])
                         lista_index.append(index)
@@ -336,8 +341,11 @@ class ventanaPrincipal(tk.Tk):
             
         return nombres, lista_index, coord
             
-    def cambio(self):
+    def cambio(self, tipo):
+        #if tipo == "mapad":
+        self.__accion=tipo
         self.__cambio=True
+            
         
     def dibujar(self):
         #print(self.__cambio, self.tipo)
@@ -345,7 +353,10 @@ class ventanaPrincipal(tk.Tk):
             #solicitaDatosGaia(self.xlim[0], self.xlim[1], self.ylim[0], self.ylim[1])
             import lecturaArchivos as Lec
             import seleccionObjeto as SO
-            print(self.__cambio)
+            puntos=[]
+            colores=[]
+            if self.__accion == "mapad":
+                self.revisar()
             
             ruta=""
 
@@ -355,7 +366,7 @@ class ventanaPrincipal(tk.Tk):
             pulsares = lectura.lecturaPulsar(name[1], sep[1], enc[1]) 
             planetas = lectura.lecturaPlaneta(name[2], sep[2], enc[2])
             constelaciones = lectura.lecturaConstelacion(name[3], sep[3], enc[3])
-            estrellasM = lectura.lecturaMessier(name[4], sep[4], enc[4])
+            #estrellasM = lectura.lecturaMessier(name[4], sep[4], enc[4])
             
             messAr = []
             messDec = []
@@ -375,24 +386,104 @@ class ventanaPrincipal(tk.Tk):
                 pulsaresAr.append(i[0])
                 pulsaresDec.append(i[1])
                 
-            if self.tipo.get() == 1:
+            if self.__accion == "mapad":
+                    
+                if self.tipo.get() == 1:
+        
+                    """ A cada objeto le corresponde una lista de coordenadas """
+                    nombresM, listaIndM, coordM = self.busqueda(messierCat, "MessierCatalogo", tipo="rec")       # objetos Messier
+                    nombresP, listaIndP, coordP = self.busqueda(planetas, "planetas", tipo="rec")                # planetas
+                    nombresC, listaIndC, coordC = self.busqueda(constelaciones, "constelaciones", tipo="rec")    # constelaciones
+                    nombresPu, listaIndPu, coordPu = self.busqueda(pulsares, "pulsares", tipo ="rec")
+                    
+                elif self.tipo.get() == 2:
+                    
+                    """ A cada objeto le corresponde una lista de coordenadas """
+                    nombresM, listaIndM, coordM = self.busqueda(messierCat, "MessierCatalogo")       # objetos Messier
+                    nombresP, listaIndP, coordP = self.busqueda(planetas, "planetas")                # planetas
+                    nombresC, listaIndC, coordC = self.busqueda(constelaciones, "constelaciones")    # constelaciones
+                    nombresPu, listaIndPu, coordPu = self.busqueda(pulsares, "pulsares")
+                    
+                if self.pal_est.get() == 1:
+                    if len(nombresM) > 0:
+                        messier = SO.messier("ar", "dec", "radio", 'tipo', 'Mabsoluta', 'tamaño', 'dist')
+                        
+                        for m in nombresM:
+                            puntosM=messier.estrella(m, interfaz=True, limpiar=True)[0]
+                            puntos.append(puntosM[0])
+                            colores.append(puntosM[1])
+                            
+                        print(len(puntos))
+                        
+                    if len(nombresC) > 0: 
     
-                """ A cada objeto le corresponde una lista de coordenadas """
-                nombresM, listaIndM, coordM = self.busqueda(messierCat, "MessierCatalogo", tipo="rec")       # objetos Messier
-                nombresP, listaIndP, coordP = self.busqueda(planetas, "planetas", tipo="rec")                # planetas
-                nombresC, listaIndC, coordC = self.busqueda(constelaciones, "constelaciones", tipo="rec")    # constelaciones
+                        constelacion = SO.constelacion("ar", 'dec', 'radio', 'abrev', 'solidAA', 'solidAM', 'perc', 'quad')
+                        for c in nombresC:
+                            puntosC=constelacion.const(c[0], interfaz=True,limpiar=True)[0]
+                            puntos.append(puntosC[0])
+                            colores.append(puntosC[1])
+                            
+                        print("hola")
+                        print(len(puntos))
+                        
+                if self.pal_psr.get() == 1:
+                    #for p in nombresP:
+                    objeto = SO.objetoEstelar(pulsaresAr, pulsaresDec, [])
+                    puntosPlnt=objeto.crearMapaEstelar([],[])[0]
+                    puntos.append(puntosPlnt[0])
+                    colores.append(puntosPlnt[1])
+                        
+                if puntos:
+                    print(len(puntos))
+                    
+                    fig, ax = plt.subplots()
+                    ax.set_facecolor((0,0,0))
+    
+                    i=0
+                    for con in puntos:
+                        try:
+                            x=[el[0][0] for el in con]
+                            y=[el[0][1] for el in con]
+                            col = colores[i]
+                            ax.scatter(x,y, s=2,color=col)
+                            i+=1
+                        except IndexError:
+                            i+=1
+                            continue
+                    if self.tipo.get() == 2:
+                        t = np.linspace(0,360,360)
+                        x = self.rad*np.cos(np.radians(t)) + self.centro[0]  #a es el eje mayor de la elipse
+                        y = self.rad*np.sin(np.radians(t)) + self.centro[1] #b es el eje menor de la elipse
+                        ax.plot(x,y, linewidth=0.5)
+                    ax.set_xlim(self.xlim)
+                    ax.set_ylim(self.ylim)
+                        
+     
+                    figuracanvas=FigureCanvasTkAgg(fig, master=self.canvasP)
+                    figuracanvas.draw()
+                    
+                    figuracanvas.get_tk_widget().place(relx=0.05, rely=0, relheight=1, relwidth=0.9)
+                    
+            elif self.__accion == "espM":
                 
-            elif self.tipo.get() == 2:
+                messier = SO.messier("ar", "dec", "radio", 'tipo', 'Mabsoluta', 'tamaño', 'dist')
+                if self.elec_messier.get():
+                    fig=messier.estrella(self.elec_messier.get(), interfaz=True, limpiar=True)[1]
+                    figuracanvas=FigureCanvasTkAgg(fig, master=self.canvasP)
+                    figuracanvas.draw()
+                    figuracanvas.get_tk_widget().place(relx=0.05, rely=0, relheight=1, relwidth=0.9)
                 
-                """ A cada objeto le corresponde una lista de coordenadas """
-                nombresM, listaIndM, coordM = self.busqueda(messierCat, "MessierCatalogo")       # objetos Messier
-                nombresP, listaIndP, coordP = self.busqueda(planetas, "planetas")                # planetas
-                nombresC, listaIndC, coordC = self.busqueda(constelaciones, "constelaciones")    # constelaciones
                 
             
+            elif self.__accion == "espC":
+                constelacion = SO.constelacion("ar", 'dec', 'radio', 'abrev', 'solidAA', 'solidAM', 'perc', 'quad')
+                if self.elec_const.get():
+                    fig=constelacion.const(self.elec_const.get(), interfaz=True,limpiar=True)[1]
+                    figuracanvas=FigureCanvasTkAgg(fig, master=self.canvasP)
+                    figuracanvas.draw()
+                    figuracanvas.get_tk_widget().place(relx=0.05, rely=0, relheight=1, relwidth=0.9) 
+                
             self.__cambio = False
-                
-            
             
             
         

@@ -9,8 +9,8 @@ c=3*10**8
 h=6.63*10**-34
 k=1.38*10**-23
 # 1 AU = 1.5x10^11 m
-#radTierra = 6371000 / 1.5e11 # cambiamos a AU
-#radSol = 696340000 / 1.5e11
+radTierra = 6371000 / 1.5e11 # cambiamos a AU
+radSol = 696340000 / 1.5e11
 
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
     new_cmap = colors.LinearSegmentedColormap.from_list(
@@ -28,9 +28,10 @@ class grafica:
             self.fig, self.ax = plt.subplots()
         
     
-    def mapaEstelar(self, ar, dec, objeto=[], rgb=[], indice="", colores=[], teff=[], ob=False, guardar=False, limpiar = False):
+    def mapaEstelar(self, ar, dec, objeto=[], rgb=[], indice="", colores=[], teff=[], ob=False, guardar=False, limpiar = False, interfaz=False):
         
         #self.llamadaInterfaz()
+        self.interfaz=interfaz
     
         for i in ar:
             if i > 360:
@@ -39,11 +40,16 @@ class grafica:
             elif i < 0:
                 ar[ar.index(i)]=i+360
                 
+        scat=[]
+        clr=[]
+                
         if limpiar:
             self.reiniciarFigura()
          #usuario ingresa coordenadas, elige objeto
         if len(colores) == 1:
-            self.ax.scatter(ar, dec, s=2, color=colores[0])
+            aux=self.ax.scatter(ar, dec, s=2, color=colores[0])
+            scat.append(aux.get_offsets().data)
+            clr.append(aux.get_facecolors())
         
         self.ax.set_facecolor((0,0,0))
         
@@ -51,41 +57,57 @@ class grafica:
             
             for i in indice:
                 if teff and colores:
-                    self.ax.scatter(ar[i], dec[i], s=2, color=colores[round(teff[i]*0.01)*100])
+                    aux=self.ax.scatter(ar[i], dec[i], s=2, color=colores[round(teff[i]*0.01)*100])
+                    scat.append(aux.get_offsets().data)
+                    clr.append(aux.get_facecolors())
                     continue
-                self.ax.scatter(ar[i], dec[i], s=2, color='r')
+                aux=self.ax.scatter(ar[i], dec[i], s=2, color='r')
+                scat.append(aux.get_offsets().data)
+                clr.append(aux.get_facecolors())
                 
         elif ob:
             
             for i in range(len(teff)):
                 if teff and colores:
-                    self.ax.scatter(ar[i], dec[i], s=2, color=colores[round(teff[i]*0.01)*100])
+                    aux=self.ax.scatter(ar[i], dec[i], s=2, color=colores[round(teff[i]*0.01)*100])
+                    scat.append(aux.get_offsets().data)
+                    clr.append(aux.get_facecolors())
                     continue
-                self.ax.scatter(ar[i], dec[i], s=2, color='r')
+                aux=self.ax.scatter(ar[i], dec[i], s=2, color='r')
+                scat.append(aux.get_offsets().data)
+                clr.append(aux.get_facecolors())
                 
         elif teff:
             for i in range(len(ar)):
                 if teff and colores:
-                    self.ax.scatter(ar[i], dec[i], s=2, color=colores[round(teff[i]*0.01)*100])
+                    
+                    aux=self.ax.scatter(ar[i], dec[i], s=2, color=colores[round(teff[i]*0.01)*100])
+                    scat.append(aux.get_offsets().data)
+                    clr.append(aux.get_facecolors())
                     continue
                 
         else:
-            self.ax.scatter(ar, dec, s=2, color='r')
+            aux=self.ax.scatter(ar, dec, s=2, color='r')
+            scat.append(aux.get_offsets())
+            clr.append(aux.get_facecolors())
         
         #self.ax.set_xlim(45,50)
         #self.ax.set_ylim(2,6)
             
         #self.ax.scatter(229.6375, 2.0811, s=20, color=(1,1,1))
 
-        if objeto:
-            print('a')
-            self.ax.scatter(objeto[0], objeto[1], s=3, color='r')
-            #self.ax.axhline(y=objeto[1]-objeto[2], xmin=objeto[0]-objeto[2], xmax=objeto[0]+objeto[2],color="y")
-            #self.ax.axhline(y=objeto[1]+objeto[2], xmin=objeto[0]-objeto[2], xmax=objeto[0]+objeto[2],color="y")
-            theta=np.linspace(0, 2*np.pi, 100)
-            a=objeto[2]*np.cos(theta) + objeto[0]
-            b=objeto[2]*np.sin(theta) + objeto[1]
-            self.ax.plot(a, b, color='g')
+        for ob in objeto:
+            if ob:
+                aux=self.ax.scatter(ob[0], ob[1], s=3, color='r')
+                scat.append(aux.get_offsets().data)
+                clr.append(aux.get_facecolors().to_list())
+                #self.ax.axhline(y=objeto[1]-objeto[2], xmin=objeto[0]-objeto[2], xmax=objeto[0]+objeto[2],color="y")
+                #self.ax.axhline(y=objeto[1]+objeto[2], xmin=objeto[0]-objeto[2], xmax=objeto[0]+objeto[2],color="y")
+                theta=np.linspace(0, 2*np.pi, 100)
+                a=ob[2]*np.cos(theta) + ob[0]
+                b=ob[2]*np.sin(theta) + ob[1]
+                self.ax.plot(a, b, color='g')
+                
         
         self.ax.set_xlabel("Ascensión recta ($^o$)")
         self.ax.set_ylabel("Declinación ($^o$)")
@@ -95,12 +117,14 @@ class grafica:
         if guardar:
             self.fig.savefig("mapaEstelar.jpg")
             
-        #if not self.interfaz:
+        if not interfaz:   
+            plt.show()
             
-        plt.show()
+        if len(scat) != len(clr):
+            for i in range(len(scat)):
+                clr.append(clr[0])
             
-        
-        return self.fig
+        return ((scat, clr), self.fig)
 
         
     def radiacionCuerpoN(self, teff,tempMax=0, colores=[], interfaz=False,guardar=False):
@@ -226,56 +250,60 @@ class grafica:
         
         return self.fig
     
-    def orbitas(self, numE, numP, coord, a, e, radioE, radioP): # coord=[ra, dec]
+    def orbitas(self, numE, numP, ar, dec, a, e, radioE, radioP, nomE): # coord=[ra, dec]
         
         self.reiniciarFigura()
         self.llamadaInterfaz()
         
-        b = a * np.sqrt(1-e**2)
-        c = a**2 - b**2
-        centroAux = coord[0] - c
+        for val in range(len(a)):
+            b = a[val] * np.sqrt(1-e[val]**2)
+            c = a[val]**2 - b**2
+            centroAux = ar - c
             
-        t = np.linspace(0,360,360)
-        x = a*np.cos(np.radians(t)) + centroAux  #a es el eje mayor de la elipse
-        y = b*np.sin(np.radians(t)) + coord[1] #b es el eje menor de la elipse
+            t = np.linspace(0,360,360)
+            x = a[val]*np.cos(np.radians(t)) + centroAux  #a es el eje mayor de la elipse
+            y = b*np.sin(np.radians(t)) + dec #b es el eje menor de la elipse
         
-        self.ax.plot(x, y, linewidth = 1)
+            self.ax.plot(x, y, linewidth = 1)
         
-        x1,x2=self.ax.get_xlim()
-        y1,y2=self.ax.get_ylim()
+            x1,x2=self.ax.get_xlim()
+            y1,y2=self.ax.get_ylim()
         
-        escala=min(x2-x1, y2-y1)/10
+            escala=min(x2-x1, y2-y1)/10
         
-        if str(radioP) != "nan":
-            circ = plt.Circle((x[0], y[0]), radius=escala*radioP, color="b", fill = True)
+            if str(radioP[val]) != "nan":
+                circ = plt.Circle((x[0], y[0]), radius=escala*radioP[val]*radTierra, color="b", fill = True)
             
-        else:
-            circ = plt.Circle((x[0], y[0]), radius=escala*0.5, color="b", fill = True)
+            else:
+                circ = plt.Circle((x[0], y[0]), radius=escala*0.1, color="b", fill = True)
         
-        self.ax.add_patch(circ)
-        
-        def update(i):
+            self.ax.add_patch(circ)
             
-            t=i*5
+            def update(i):
             
-            x1 = a*np.cos(np.radians(t)) + centroAux  #a es el eje mayor de la elipse
-            y1 = b*np.sin(np.radians(t)) + coord[1] #b es el eje menor de la elipse
+                t=i*5
             
-            circ.center=(x1,y1)
+                x1 = a[i]*np.cos(np.radians(t)) + centroAux  #a es el eje mayor de la elipse
+                y1 = b*np.sin(np.radians(t)) + dec #b es el eje menor de la elipse
             
-            return circ
-        
+                circ.center=(x1,y1)
+            
+                return circ
+            
         if str(radioE) != "nan":
-            self.ax.add_patch(plt.Circle((coord[0], coord[1]), radius=radioE*escala,color="r", fill=True))
+            
+            self.ax.add_patch(plt.Circle((ar, dec), radius=radioE*radSol*escala,color="r", fill=True))
             #self.ax.scatter(coord[0], coord[1], s = radioE, color='red', label='')
         else:
-            self.ax.add_patch(plt.Circle((coord[0], coord[1]), radius=escala,color="r", fill=True))
-        
+            self.ax.add_patch(plt.Circle((ar, dec), radius=escala,color="r", fill=True))
+    
+    
         self.ax.set_xlabel("Ascensión recta ($^o$)")
         self.ax.set_ylabel("Declinación ($^o$)")
-        self.ax.set_title("Sistema planetario de ")
+        self.ax.set_title("Sistema planetario de " + str(nomE))
         #self.ax.legend()
         self.ax.set_facecolor('k')
+        plt.axis('scaled')
 
         
         return self.fig, lambda i: update(i)

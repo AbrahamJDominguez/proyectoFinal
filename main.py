@@ -35,7 +35,7 @@ def busqueda(archivo, nombreArchivo): # Busca todos los objetos cercanos a las c
         elif nombreArchivo == 'MessierCatalogo':
             distancia = ((archivo[index][0] - float(seleccionO.ar))**2 + (archivo[index][1] - float(seleccionO.dec))**2)**(1/2)
             if distancia < float(seleccionO.radio) + float(archivo[index][2]):
-                print(distancia, float(seleccionO.radio) + float(archivo[index][2]))
+                #print(distancia, float(seleccionO.radio) + float(archivo[index][2]))
                 nombres.append(archivo[index][-1])
                 lista_index.append(index)
                 coord.append([archivo[index][0], archivo[index][1]])
@@ -87,8 +87,31 @@ def datosIniciales():
     """ A cada objeto le corresponde una lista de coordenadas """
     nombresM, listaIndM, coordM = busqueda(messierCat, "MessierCatalogo")       # objetos Messier
     nombresP, listaIndP, coordP = busqueda(planetas, "planetas")                # planetas
-    nombresC, listaIndC, coordC = busqueda(constelaciones, "constelaciones")    # constelaciones
+    nombresC, listaIndC, coordC = busqueda(constelaciones, "constelaciones") # constelaciones
     # estrellas (por medio de Messier de Gaia)
+    nombresPu, listaIndPu, coordPu = busqueda(pulsares, "pulsares")
+    
+    scatterM = []
+    scatterC = []
+    scatterPu = []
+    c=0
+    for i in coordM:
+        scatterM.append(i)
+        #print(seleccionO.radio)
+        scatterM[c].append(float(seleccionO.radio))
+        c+=1
+    c=0
+    for j in coordC:
+        scatterC.append(i)
+        #print(seleccionO.radio)
+        scatterC[c].append(float(seleccionO.radio))
+        c+=1
+    c=0
+    for k in coordPu:
+        scatterPu.append(i)
+        #print(seleccionO.radio)
+        scatterPu[c].append(float(seleccionO.radio))
+        c+=1
     
     if nombresC and len(nombresC) == 1:
         print('\nLas coordenadas ingresadas se ubican en la constelación de ' + str(nombresC[0][0]) + ' ('+ str(nombresC[0][1]) + ').')
@@ -175,50 +198,55 @@ pero el objeto podría estar en alguna de las siguientes constelaciones:""")
             opcion = int(input("Seleccione una opcion: "))
             if opcion == 1:
                 objeto = SO.objetoEstelar(pulsaresAr, pulsaresDec, [])
-                objeto.crearMapaEstelar([],[])
+                objeto.crearMapaEstelar([],scatterPu)
             elif opcion == 2:
-                objeto = SO.objetoEstelar(constAr, constDec, [])
+                objeto = SO.objetoEstelar(constAr, constDec, scatterC)
                 objeto.crearMapaEstelar([],[])
             elif opcion == 3:
                 objeto = SO.objetoEstelar(messAr, messDec, [])
-                objeto.crearMapaEstelar([],[])
+                objeto.crearMapaEstelar([],scatterM)
             else: 
                 print("Opción no válida")
             
         else:
             coord = listaC[num]
+            orb, radp, masp, ex, nom = [],[],[],[],[]
+            
             if coord in coordM:
                 messier =SO.messier(coord[0], coord[1], seleccionO.radio, "tipo", "Mabsoluta", "tamaño", "dist")
                 messier.cumulos()
                 
             elif coord in coordP:
-                index = coordP.index(coord)
-                index = (np.array(planetas).transpose().tolist())[-1].index(nombresP[index])
-                
-                Nnom = []
-                planeta = SO.Planeta(coord[0], coord[1], seleccionO.radio, planetas[index][3], planetas[index][4], planetas[index][5], planetas[index][6], planetas[index][7], planetas[index][8], planetas[index][9], planetas[index][10], planetas[index][2])
-                planeta.pl()
-                fig, func= planeta.sistemaPlanetario()
-                
-                def anim(i):
-                    return func(i)
-                
-                ani = FuncAnimation(fig, anim , repeat=True)
-                
-                plt.show()
-                #print(planetas[index][4])
-                #if planetas[index][4] >= 2:
-                #    for nom in nombresP:
-                #        if nom[0:5] == nombresP[index][0:5]:
-                #            Nnom.append(nom)
-                #    print(Nnom)
-                    
-                #elif planetas[index][4] == 1:
-                #else:
-                #    planeta = SO.Planeta(coord[0], coord[1], seleccionO.radio, planetas[index][3], planetas[index][4], planetas[index][5], planetas[index][6], planetas[index][7], planetas[index][8], planetas[index][9], planetas[index][10], planetas[index][2])
-                #    planeta.pl()
-                #    planeta.sistemaPlanetario()
-                
+                 index = coordP.index(coord)
+                 index = (np.array(planetas).transpose().tolist())[-1].index(nombresP[index])
+                 listAux = np.array(planetas).transpose().tolist()  # lista planetas
+                 nomE = listAux[2][index]
+                 Nnom = []
+                 
+                 for nom_i in range(len(listAux[2])):
+                     if listAux[2][nom_i] == nomE:
+                         Nnom.append(nom_i)
+                 
+                 for num in range(len(Nnom)):
+                     orb.append(float(listAux[5][Nnom[num]]))
+                     radp.append(float(listAux[6][Nnom[num]]))
+                     masp.append(float(listAux[7][Nnom[num]]))
+                     ex.append(float(listAux[8][Nnom[num]]))
+                     nom.append(listAux[-1][Nnom[num]])
+                 
+                 #planeta = SO.Planeta(coord[0], coord[1], seleccionO.radio, planetas[index][3], planetas[index][4], planetas[index][5], planetas[index][6], planetas[index][7], planetas[index][8], planetas[index][9], planetas[index][10], planetas[index][2])
+                 #planeta.pl()
+                 #fig, func= planeta.sistemaPlanetario()
+                 planeta = SO.Planeta(coord[0], coord[1], seleccionO.radio, planetas[index][3], planetas[index][4], orb, radp, masp, ex, planetas[index][7], nom, nomE)
+                 planeta.pl()
+                 fig, func = planeta.sistemaPlanetario()
+                 
+                 def anim(i):
+                     return func(i)
+                 
+                 ani = FuncAnimation(fig, anim , repeat=True)
+                 
+                 plt.show()
             else:
                 conste = SO.constelacion(coord[0], coord[1], seleccionO.radio, "abrev", 'solidAA', 'solidAM', 'perc', 'quad')
                 conste.const()
