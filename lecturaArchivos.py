@@ -14,13 +14,14 @@ import glob
 import utilidades as Util
 
 #ruta="C:/Users/sandy/Documents/Pooye/proyectoFinal-main/"
-ruta = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/"
+#ruta = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/"
+ruta=""
 
 """ Cambiar esta dirección a donde estén los archivos messiersGaia y constelaciones:"""
 #rutaMessiers="C:/Users/sandy/Documents/Pooye/proyectoFinal-main/messiersGaia/"
 #rutaConste="C:/Users/sandy/Documents/Pooye/proyectoFinal-main/constelaciones/"
-rutaMessiers = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/messiersGaia/"
-rutaConste = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/constelaciones/"
+rutaMessiers = "messiersGaia/"#"C:/Users/cimen/Documents/POOE/proyectoFinal-main/messiersGaia/"
+rutaConste = "constelaciones/"#"C:/Users/cimen/Documents/POOE/proyectoFinal-main/constelaciones/"
 
 
 class lecturaArchivos:
@@ -172,6 +173,36 @@ class lecturaArchivos:
             EC[num] = C
         
         return EC
+    
+    def ventanaArchivo(self):
+        root=tkinter.Tk()
+        root.withdraw()
+        self.ruta=filedialog.askopenfilename() 
+    	
+        return ruta
+    
+    def obtenerColoresCuerpoN(self,ruta=""):
+        
+        try:
+            if not ruta:
+                ruta=self.ventanaArchivo()
+                
+            colores={}
+            with open(ruta, "r") as archivo:
+                for line in archivo:
+                    line=line.strip()
+                    col=line.split("  ")
+                    #print(col[1])
+                    if col[1]=="10deg":
+                        col[0]=float(col[0].split(" ")[0])
+                        colores[col[0]]=col[-1]
+                        
+            #print(colores)
+                    
+            return colores
+        
+        except FileNotFoundError:
+            return []
         
 if __name__=="__main__":
     lectura=lecturaArchivos(ruta)

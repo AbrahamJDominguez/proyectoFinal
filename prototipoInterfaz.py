@@ -140,11 +140,19 @@ class ventanaPrincipal(tk.Tk):
                 
                 if not isfloat(limx) and not isfloat(rad):
                     xlim=tiempoaGrados(limx)
-                    self.xlim=(min(x-xlim, x+xlim),max(x-xlim, x+xlim))
+                    self.xlim=(min(x-xlim/2, x+xlim/2),max(x-xlim/2, x+xlim/2))
+                    
+                elif isfloat(limx) and not isfloat(rad):
+                    xlim=float(limx)
+                    self.xlim=(min(x-xlim/2, x+xlim/2),max(x-xlim/2, x+xlim/2))      
                     
                 if not isfloat(limy) and not isfloat(rad):
                     ylim=tiempoaGrados(limy)
-                    self.ylim=(min(y-ylim, y+ylim),max(y-ylim, y+ylim))
+                    self.ylim=(min(y-ylim/2, y+ylim/2),max(y-ylim/2, y+ylim/2))
+                    
+                elif isfloat(limy) and not isfloat(rad):
+                    ylim=float(limy)
+                    self.ylim=(min(y-ylim/2, y+ylim/2),max(y-ylim/2, y+ylim/2))
                     
                 if isfloat(rad):
                     self.rad=float(rad)
@@ -272,45 +280,72 @@ class ventanaPrincipal(tk.Tk):
         tk.Button(frame_listas, text="Mostrar elección", command=self.cambio)\
             .place(relx=0.33, rely=0.6)
             
-    def busqueda(self, archivo, nombreArchivo): # Busca todos los objetos cercanos a las coordenadas escritas
+    def busqueda(self, archivo, nombreArchivo, tipo="circ"): # Busca todos los objetos cercanos a las coordenadas escritas
 
         nombres, lista_index, coord = [], [], []
         
         for index in range(len(archivo)):
             
-            
-            if nombreArchivo == 'constelaciones':
-                radio = 60
-                if ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2) <= float(radio)**2:
-                    nombre_aux = [archivo[index][-2], archivo[index][-1]]
-                    nombres.append(nombre_aux)
-                    lista_index.append(index)
-                    coord.append([archivo[index][0], archivo[index][1]])
-                    
-            elif nombreArchivo == 'MessierCatalogo':
-                distancia = ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2)**(1/2)
-                if distancia < float(self.rad) + float(archivo[index][2]):
-                    print(distancia, float(self.rad) + float(archivo[index][2]))
+            if tipo == "circ":
+                if nombreArchivo == 'constelaciones':
+                    radio = 60
+                    if ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2) <= float(radio)**2:
+                        nombre_aux = [archivo[index][-2], archivo[index][-1]]
+                        nombres.append(nombre_aux)
+                        lista_index.append(index)
+                        coord.append([archivo[index][0], archivo[index][1]])
+                        
+                elif nombreArchivo == 'MessierCatalogo':
+                    distancia = ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2)**(1/2)
+                    if distancia < float(self.rad) + float(archivo[index][2]):
+                        print(distancia, float(self.rad) + float(archivo[index][2]))
+                        nombres.append(archivo[index][-1])
+                        lista_index.append(index)
+                        coord.append([archivo[index][0], archivo[index][1]])
+                        
+                elif ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2) <= float(self.rad)**2:
                     nombres.append(archivo[index][-1])
-                    lista_index.append(index)
-                    coord.append([archivo[index][0], archivo[index][1]])
-                    
-            elif ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2) <= float(self.rad)**2:
-                nombres.append(archivo[index][-1])
-                lista_index.append(index) 
-                """ Agregué una lista para guardar las coordenadas de cada objeto dentro del radio """
-                coord.append([archivo[index][0], archivo[index][1]])        
+                    lista_index.append(index) 
+                    """ Agregué una lista para guardar las coordenadas de cada objeto dentro del radio """
+                    coord.append([archivo[index][0], archivo[index][1]])        
         
+            elif tipo == "rec":
+                if nombreArchivo == 'constelaciones':
+                    radio = 60
+                    if (float(self.xlim[0]) < (archivo[index][0]) and float(self.xlim[1]) > (archivo[index][0])) and \
+                    (archivo[index][1] > float(self.ylim[0]) and archivo[index][1] < float(self.ylim[1])) :
+                        nombre_aux = [archivo[index][-2], archivo[index][-1]]
+                        nombres.append(nombre_aux)
+                        lista_index.append(index)
+                        coord.append([archivo[index][0], archivo[index][1]])
+                        
+                elif nombreArchivo == 'MessierCatalogo':
+                    distancia = ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2)**(1/2)
+                    if distancia < min(self.xlim+self.ylim) + float(archivo[index][2]):
+                        print(distancia, float(self.rad) + float(archivo[index][2]))
+                        nombres.append(archivo[index][-1])
+                        lista_index.append(index)
+                        coord.append([archivo[index][0], archivo[index][1]])
+                        
+                elif (float(self.xlim[0]) < (archivo[index][0]) and float(self.xlim[1]) > (archivo[index][0])) and \
+                (archivo[index][1] > float(self.ylim[0]) and archivo[index][1] < float(self.ylim[1])):
+                    nombres.append(archivo[index][-1])
+                    lista_index.append(index) 
+                    """ Agregué una lista para guardar las coordenadas de cada objeto dentro del radio """
+                    coord.append([archivo[index][0], archivo[index][1]])        
+            
         return nombres, lista_index, coord
-        
+            
     def cambio(self):
         self.__cambio=True
         
     def dibujar(self):
-        if self.__cambio and self.tipo == 1:
+        #print(self.__cambio, self.tipo)
+        if self.__cambio:
             #solicitaDatosGaia(self.xlim[0], self.xlim[1], self.ylim[0], self.ylim[1])
             import lecturaArchivos as Lec
             import seleccionObjeto as SO
+            print(self.__cambio)
             
             ruta=""
 
@@ -339,11 +374,24 @@ class ventanaPrincipal(tk.Tk):
             for i in pulsares:
                 pulsaresAr.append(i[0])
                 pulsaresDec.append(i[1])
-
-            """ A cada objeto le corresponde una lista de coordenadas """
-            nombresM, listaIndM, coordM = self.busqueda(messierCat, "MessierCatalogo")       # objetos Messier
-            nombresP, listaIndP, coordP = self.busqueda(planetas, "planetas")                # planetas
-            nombresC, listaIndC, coordC = self.busqueda(constelaciones, "constelaciones")    # constelaciones
+                
+            if self.tipo.get() == 1:
+    
+                """ A cada objeto le corresponde una lista de coordenadas """
+                nombresM, listaIndM, coordM = self.busqueda(messierCat, "MessierCatalogo", tipo="rec")       # objetos Messier
+                nombresP, listaIndP, coordP = self.busqueda(planetas, "planetas", tipo="rec")                # planetas
+                nombresC, listaIndC, coordC = self.busqueda(constelaciones, "constelaciones", tipo="rec")    # constelaciones
+                
+            elif self.tipo.get() == 2:
+                
+                """ A cada objeto le corresponde una lista de coordenadas """
+                nombresM, listaIndM, coordM = self.busqueda(messierCat, "MessierCatalogo")       # objetos Messier
+                nombresP, listaIndP, coordP = self.busqueda(planetas, "planetas")                # planetas
+                nombresC, listaIndC, coordC = self.busqueda(constelaciones, "constelaciones")    # constelaciones
+                
+            
+            self.__cambio = False
+                
             
             
             
@@ -395,12 +443,26 @@ class ventanaDiagrama(tk.Toplevel):
         
         figuracanvas.get_tk_widget().place(relx=0.05, rely=0, relheight=1, relwidth=0.9)
         
+class main_():
+    def __init__(self):
+        self._iniciarInterfaz()
+        self._actualizarPantalla()
+        self._gui.mainloop()
+
+    def _iniciarInterfaz(self):
+        self._gui=ventanaPrincipal()
+
+    def _actualizarPantalla(self):
+        if self._gui:
+            self._gui.dibujar()
+            self._gui.after(100, self._actualizarPantalla)
+    
         
         
     
 if __name__ == "__main__":
     
-    
-    raiz=ventanaPrincipal()
-    raiz.mainloop()
+    main_()
+    # raiz=ventanaPrincipal()
+    # raiz.mainloop()
     

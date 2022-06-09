@@ -274,7 +274,7 @@ Selección: """))
             c+=1
             
             """ Obtener los colores de cuerpo negro """
-        rutaCuerpoNegro = ""#"C:/Users/cimen/Documents/POOE/proyectoFinal-main/coloresCuerpoNegro.txt"   
+        rutaCuerpoNegro = "coloresCuerpoNegro.txt"#"C:/Users/cimen/Documents/POOE/proyectoFinal-main/coloresCuerpoNegro.txt"  
         colores = self.obtenerColoresCuerpoN(rutaCuerpoNegro)
         
         if not interfaz:
