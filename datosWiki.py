@@ -228,28 +228,27 @@ if __name__ == "__main__":
     
     #Ejecutar para crear la base de datos de constelaciones de forma local
     
-    # ruta="constelaciones"
+    ruta="constelaciones"
     
-    # if not os.path.isdir(ruta):
-    #     os.makedirs(ruta)
+    if not os.path.isdir(ruta):
+        os.makedirs(ruta)
     
-    # const=obtenerConstelaciones()["Constellation"]
+    const=obtenerConstelaciones()["Constellation"]
     
-    # ruta+="/"
+    ruta+="/"
     
-    # for c in const:
-    #     if not os.path.isfile(ruta+c+".csv"):
-    #         creaArchivoWikiTabla(obtenerEstrellasConstelacion(c),c,ruta)
+    for c in const:
+        if not os.path.isfile(ruta+c+".csv"):
+            creaArchivoWikiTabla(obtenerEstrellasConstelacion(c),c,ruta)
     
-    # const=obtenerConstelaciones()
+    const=obtenerConstelaciones()
     
-    # creaArchivoWikiTabla(const)
+    creaArchivoWikiTabla(const)
     
-    # obtenerEstrellaE("888888")
+
     
     tablaClaseEspc()
     
-    #print(obtenerEstrellaE("11_Com"))
     
     
     

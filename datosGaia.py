@@ -81,22 +81,22 @@ if __name__=="__main__":
                       "matched_observations,duplicated_source,phot_variable_flag "
                       "from gaiadr2.gaia_source order by source_id")
     
-    # messiers=lecturaArchivos("").lecturaCatalogoM("MessierCatalogList.csv",",","utf-8")
-    # # solicitaDatosGaia(0, 10, 2)
-    # print(messiers)
+    messiers=lecturaArchivos("").lecturaCatalogoM("MessierCatalogList.csv",",","utf-8")
+    # solicitaDatosGaia(0, 10, 2)
+    print(messiers)
     
-    # ruta="messiersGaia"
+    ruta="messiersGaia"
     
-    # if not os.path.isdir(ruta):
-    #     os.makedirs(ruta)
+    if not os.path.isdir(ruta):
+        os.makedirs(ruta)
     
-    # for m in range(len(messiers)):
-    #     if not os.path.isfile(f"messiersGaia/M{m+1}.csv"):
-    #         tabla=solicitaMessiersGaia(messiers[m])
-    #         tabla.write(f"messiersGaia/M{m+1}.csv", format="ascii.csv")
+    for m in range(len(messiers)):
+        if not os.path.isfile(f"messiersGaia/M{m+1}.csv"):
+            tabla=solicitaMessiersGaia(messiers[m])
+            tabla.write(f"messiersGaia/M{m+1}.csv", format="ascii.csv")
         
-    # # print(f"SELECT Top {n} ra, dec, teff_val "
-    # #                   "from gaiadr2.gaia_source "
-    # #                   "WHERE ( "
-    # #                   f"(ra BETWEEN {x1} AND {x2} AND dec BETWEEN {y1} AND {y2} AND teff_val > 0) "
-    # #                   ")")
+    # print(f"SELECT Top {n} ra, dec, teff_val "
+    #                   "from gaiadr2.gaia_source "
+    #                   "WHERE ( "
+    #                   f"(ra BETWEEN {x1} AND {x2} AND dec BETWEEN {y1} AND {y2} AND teff_val > 0) "
+    #                   ")")

@@ -77,13 +77,15 @@ class objetoLuminoso(objetoEstelar): ## modulo para estrellas cercanas a messier
         self.temp_eff = temp_eff
         self.m_absoluta = m_absoluta
         
-    def crearRadiacionCN(self, teff, tempMax, colores):
+    def crearRadiacionCN(self, teff, tempMax, colores, interfaz=False):
         graficas = graf.grafica()  
-        graficas.radiacionCuerpoN(teff, tempMax, colores = colores)
+        fig = graficas.radiacionCuerpoN(teff, tempMax, colores = colores, interfaz=interfaz)
+        return fig
     
-    def crearDiagramaHR(self, bp_rp, phot_g_mean_mag, radius, tempt, zoom):
+    def crearDiagramaHR(self, bp_rp, phot_g_mean_mag, radius, tempt, zoom, interfaz=False):
         graficas = graf.grafica()
-        graficas.diagramaHR(bp_rp, phot_g_mean_mag, radius, tempt, zoom)
+        fig = graficas.diagramaHR(bp_rp, phot_g_mean_mag, radius, interfaz=interfaz, tempt=tempt, zoom=zoom)
+        return fig
         
 
 
@@ -184,7 +186,7 @@ class messier(objetoEstelar):
     #    print("Estás en el módulo messiers, qué deseas hacer?")
     #    print(self.ar,self.dec)
         
-    def estrella(self,messier, interfaz=False, tipo=1, limpiar=True):
+    def estrella(self,messier,tipo=1, interfaz=False, limpiar=True):
         print("\n\n*****Estás en el modulo de estrellas cercanas al messier****")
         estrellasM = lectura.lecturaMessier(name[4], sep[4], enc[4])
         #print(estrellasM[messier+".csv"])
@@ -247,23 +249,28 @@ class messier(objetoEstelar):
                     
             return bp_rp, g_abs2, radius2
             
-        def depurarDiagrama(self,radius, bp, photon, teff ,g_abs, parallax):
-            opcion=int(input("""¿Qué diagrama H-R desea generar?
-1. H-R de las estrellas con temperaturas efectivas conocidas.
-2. H-R con el color BP-RP.
-3. Ambos.
-Selección: """))
-            objetoLum = objetoLuminoso('ar', 'dec', 'radio', 'temp_eff')
+        def depurarDiagrama(self,radius, bp, photon, teff ,g_abs, parallax, interfaz=interfaz):
+            if not interfaz:
+                opcion=int(input("""¿Qué diagrama H-R desea generar?
+                                 "1. H-R de las estrellas con temperaturas efectivas conocidas.
+                                 "2. H-R con el color BP-RP.
+                                 "3. Ambos.
+                                 "Selección: """))
+                
+            else:
+                opcion=1
+                
+            objetoLum = objetoLuminoso('ar', 'dec', 'radio', 'temp_eff', "m_absoluta")
             if opcion==1:
                 
                 teff1, g_abs1, radius1=depurar_teff(teff, g_abs, radius)
-                objetoLum.crearDiagramaHR(teff1, g_abs1, radius1,tempt=True, zoom=True)
+                fig=objetoLum.crearDiagramaHR(teff1, g_abs1, radius1,tempt=True, zoom=True,interfaz=interfaz)
                 #graficas.diagramaHR(teff1, g_abs1, radius1, tempt=True, zoom=True)
                 
             elif opcion==2:
                 
                 bp_rp2, g_abs2, radius2=depurar_bp_rp(bp, g_abs, radius)
-                objetoLum.crearDiagramaHR(bp_rp2, g_abs2, radius2, tempt = False, zoom = False)
+                fig=objetoLum.crearDiagramaHR(bp_rp2, g_abs2, radius2, tempt = False, zoom = False,interfaz=interfaz)
                 #graficas.diagramaHR(bp_rp2, g_abs2, radius2)
             
             else:
@@ -273,7 +280,8 @@ Selección: """))
                 teff, g_abs1, radius1=depurar_teff(teff, g_abs, radius)
                 objetoLum.crearDiagramaHR(teff, g_abs1, radius1, tempt=True, zoom=True)
                 #graficas.diagramaHR(teff, g_abs1, radius1, tempt=True, zoom=True)
-        
+                
+            return fig
         c=0
         for temp in teff:
             if c==0:
@@ -309,11 +317,14 @@ Selección: """))
                 return datos, fig
                 
             elif tipo == 2:
-                objetoLum = objetoLuminoso("ar", "dec", "radio", "teff")
-                objetoLum.crearRadiacionCN(teff, tempMax, colores)
+                objetoLum = objetoLuminoso("ar", "dec", "radio", "teff", "m_absoluta")
+                fig = objetoLum.crearRadiacionCN(teff, tempMax, colores, interfaz=interfaz)
+                return fig
                 
             elif tipo == 3:
-                depurarDiagrama(self, radius, bp, photon, teff, g_abs, parallax)
+                fig=depurarDiagrama(self, radius, bp, photon, teff, g_abs, parallax, interfaz=interfaz)
+                return fig
+                
 
     def obtenerColoresCuerpoN(self, ruta):
         colores = {}

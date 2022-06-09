@@ -7,14 +7,17 @@ Created on Mon Jun  6 21:31:56 2022
 
 import tkinter as tk
 from tkinter import ttk
-from utilidades import tiempoaGrados, isfloat
+from utilidades import tiempoaGrados, isfloat, creacionBases
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from datosGaia import solicitaDatosGaia
+#from datosGaia import solicitaDatosGaia
 import numpy as np
+import seleccionObjeto as SO
+from tkinter import messagebox
+
 
 #heredamos de la clase tk para poder crear una ventana principal y configurarla desde afuera
 #de la misma forma que se haría con el Tk normal
@@ -43,6 +46,9 @@ class ventanaPrincipal(tk.Tk):
         self.ent_tamx=tk.StringVar()
         self.ent_tamy=tk.StringVar()
         
+        self._interfaz=tk.BooleanVar()
+        self._interfaz.set(True)
+        
         self.elec_const=tk.StringVar()
         self.elec_messier=tk.StringVar()
         
@@ -70,7 +76,7 @@ class ventanaPrincipal(tk.Tk):
         self.fh.place(relx=0.75, rely=0, relheight=1, relwidth=0.25)
         self.entradas()
         self.checks()
-        #self.botones()
+        self.botones()
         self.listasDesplegables()
         
     def entradas(self):
@@ -211,6 +217,19 @@ class ventanaPrincipal(tk.Tk):
                         offvalue=0, style="P.TCheckbutton",
                         command=lambda: self.cambio("mapad")).place(relx=0.15, rely=0.7)
         
+        def desplegarAviso():
+            self.cambio("mapad")
+            if not self._interfaz.get():
+                messagebox.showinfo(message="Al activar esta casilla se desplegarán ventanas\n "\
+                                    "emergentes que detienen al programa hasta ser cerradas",
+                                    title="Aviso")
+            
+        ttk.Checkbutton(frame_checks, text="Mostrar posibles incidencias",
+                        variable=self._interfaz,
+                        onvalue=False,
+                        offvalue=True, style="P.TCheckbutton",
+                        command= desplegarAviso).place(relx=0.15, rely=0.5)
+        
     def botones(self):
         frame_botones=tk.Frame(self.fh, bg="#b9b9b9")
         frame_botones.place(relx=0, rely=0.4, relwidth=1, relheight=0.2)
@@ -219,14 +238,14 @@ class ventanaPrincipal(tk.Tk):
         frameSepEl.place(relx=0.1,rely=0, height=20, relwidth=0.8)
         ttk.Separator(frameSepEl, orient="horizontal")\
             .place(relx=0, rely=0.4, relwidth=1)
-        tk.Label(frameSepEl, text="Diagramas de elementos en mapa", bg="#bbbbbb")\
+        tk.Label(frameSepEl, text="Diagramas de Messier elegido", bg="#bbbbbb")\
         .pack()
         ttk.Separator(frame_botones, orient="horizontal")\
             .place(relx=0, rely=0.9, relwidth=1)
         
-        tk.Button(frame_botones, text="Diagrama H-R").place(relx=0.15, rely=0.15)
-        tk.Button(frame_botones, text="Radiacion de cuerpo negro").place(relx=0.15, rely=0.40)
-        tk.Button(frame_botones, text="Orbitas").place(relx=0.15, rely=0.65)
+        tk.Button(frame_botones, text="Diagrama H-R", command=lambda: self.diagramasMessier(3)).place(relx=0.15, rely=0.15)
+        tk.Button(frame_botones, text="Radiacion de cuerpo negro", command=lambda: self.diagramasMessier(2)).place(relx=0.15, rely=0.40)
+        #tk.Button(frame_botones, text="Orbitas").place(relx=0.15, rely=0.65)
         
     def listasDesplegables(self):
         self.listaConstelaciones()
@@ -304,7 +323,6 @@ class ventanaPrincipal(tk.Tk):
                 elif nombreArchivo == 'MessierCatalogo':
                     distancia = ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2)**(1/2)
                     if distancia < float(self.rad) + float(archivo[index][2]):
-                        print(distancia, float(self.rad) + float(archivo[index][2]))
                         nombres.append(archivo[index][-1])
                         lista_index.append(index)
                         coord.append([archivo[index][0], archivo[index][1]])
@@ -326,8 +344,8 @@ class ventanaPrincipal(tk.Tk):
                         
                 elif nombreArchivo == 'MessierCatalogo':
                     distancia = ((archivo[index][0] - float(self.centro[0]))**2 + (archivo[index][1] - float(self.centro[1]))**2)**(1/2)
-                    if max(float(archivo[index][2]),abs(min(self.xlim+self.ylim))) > distancia:
-                        print(distancia, float(self.rad) + float(archivo[index][2]))
+                    if max(float(archivo[index][2])+self.centro[0],float(archivo[index][2])+self.centro[1]) > distancia:
+
                         nombres.append(archivo[index][-1])
                         lista_index.append(index)
                         coord.append([archivo[index][0], archivo[index][1]])
@@ -345,6 +363,24 @@ class ventanaPrincipal(tk.Tk):
         #if tipo == "mapad":
         self.__accion=tipo
         self.__cambio=True
+        
+    def diagramasMessier(self, tipo):
+        mess=self.elec_messier.get()
+        if mess:
+            messier = SO.messier("ar", "dec", "radio", 'tipo', 'Mabsoluta', 'tamaño', 'dist')
+            
+            fig=messier.estrella(mess, tipo=tipo, interfaz=True)
+            
+            if tipo == 2:
+                titulo=f"Radiacion de cuerpo negro de estrellas en {mess}"
+                tipov="rcn"
+                
+            elif tipo == 3:
+                titulo=f"Radiacion de cuerpo negro de estrellas en {mess}"
+                tipov="hr"
+                
+            ventanaDiagrama(titulo, fig, tipo=tipov)
+            
             
         
     def dibujar(self):
@@ -409,32 +445,27 @@ class ventanaPrincipal(tk.Tk):
                         messier = SO.messier("ar", "dec", "radio", 'tipo', 'Mabsoluta', 'tamaño', 'dist')
                         
                         for m in nombresM:
-                            puntosM=messier.estrella(m, interfaz=True, limpiar=True)[0]
+                            puntosM=messier.estrella(m, interfaz=self._interfaz.get(), limpiar=True)[0]
                             puntos.append(puntosM[0])
                             colores.append(puntosM[1])
                             
-                        print(len(puntos))
                         
                     if len(nombresC) > 0: 
     
                         constelacion = SO.constelacion("ar", 'dec', 'radio', 'abrev', 'solidAA', 'solidAM', 'perc', 'quad')
                         for c in nombresC:
-                            puntosC=constelacion.const(c[0], interfaz=True,limpiar=True)[0]
+                            puntosC=constelacion.const(c[0], interfaz=self._interfaz.get(),limpiar=True)[0]
                             puntos.append(puntosC[0])
                             colores.append(puntosC[1])
-                            
-                        print("hola")
-                        print(len(puntos))
                         
                 if self.pal_psr.get() == 1:
                     #for p in nombresP:
                     objeto = SO.objetoEstelar(pulsaresAr, pulsaresDec, [])
-                    puntosPlnt=objeto.crearMapaEstelar([],[])[0]
+                    puntosPlnt=objeto.crearMapaEstelar([],[], interfaz=self._interfaz.get())[0]
                     puntos.append(puntosPlnt[0])
                     colores.append(puntosPlnt[1])
                         
                 if puntos:
-                    print(len(puntos))
                     
                     fig, ax = plt.subplots()
                     ax.set_facecolor((0,0,0))
@@ -468,7 +499,7 @@ class ventanaPrincipal(tk.Tk):
                 
                 messier = SO.messier("ar", "dec", "radio", 'tipo', 'Mabsoluta', 'tamaño', 'dist')
                 if self.elec_messier.get():
-                    fig=messier.estrella(self.elec_messier.get(), interfaz=True, limpiar=True)[1]
+                    fig=messier.estrella(self.elec_messier.get(), interfaz=self._interfaz.get(), limpiar=True)[1]
                     figuracanvas=FigureCanvasTkAgg(fig, master=self.canvasP)
                     figuracanvas.draw()
                     figuracanvas.get_tk_widget().place(relx=0.05, rely=0, relheight=1, relwidth=0.9)
@@ -478,7 +509,7 @@ class ventanaPrincipal(tk.Tk):
             elif self.__accion == "espC":
                 constelacion = SO.constelacion("ar", 'dec', 'radio', 'abrev', 'solidAA', 'solidAM', 'perc', 'quad')
                 if self.elec_const.get():
-                    fig=constelacion.const(self.elec_const.get(), interfaz=True,limpiar=True)[1]
+                    fig=constelacion.const(self.elec_const.get(), interfaz=self._interfaz.get(),limpiar=True)[1]
                     figuracanvas=FigureCanvasTkAgg(fig, master=self.canvasP)
                     figuracanvas.draw()
                     figuracanvas.get_tk_widget().place(relx=0.05, rely=0, relheight=1, relwidth=0.9) 
@@ -511,16 +542,16 @@ class ventanaDiagrama(tk.Toplevel):
         self.canvasP=tk.Canvas(self, bg="#0b0b0b")
         self.canvasP.place(relx=0, rely=0,relheight=1, relwidth=1)
         
-        figuracanvas=FigureCanvasTkAgg(self.figura, master=self)
+        figuracanvas=FigureCanvasTkAgg(datos, master=self)
         figuracanvas.draw()
         
         figuracanvas.get_tk_widget().place(relx=0.05, rely=0, relheight=1, relwidth=0.9)
         
-    def graficaHR(self, datos):
+    def graficaHR(self, messier):
         self.canvasP=tk.Canvas(self, bg="#0b0b0b")
         self.canvasP.place(relx=0, rely=0,relheight=1, relwidth=1)
         
-        figuracanvas=FigureCanvasTkAgg(self.figura, master=self)
+        figuracanvas=FigureCanvasTkAgg(messier, master=self)
         figuracanvas.draw()
         
         figuracanvas.get_tk_widget().place(relx=0.05, rely=0, relheight=1, relwidth=0.9)
@@ -552,6 +583,8 @@ class main_():
         
     
 if __name__ == "__main__":
+    
+    creacionBases()      
     
     main_()
     # raiz=ventanaPrincipal()

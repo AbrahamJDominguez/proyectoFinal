@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
+from utilidades import creacionBases
 
 #ruta = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/"
 ruta=""
@@ -254,4 +255,6 @@ pero el objeto podría estar en alguna de las siguientes constelaciones:""")
     
 # ================================================= Main ======================================================
 # Mandamos llamar funciones
+creacionBases()
+
 datosIniciales()

@@ -129,6 +129,7 @@ class grafica:
         
     def radiacionCuerpoN(self, teff,tempMax=0, colores=[], interfaz=False,guardar=False):
         import numpy as np
+        self.interfaz=interfaz
         
         self.reiniciarFigura()
         self.llamadaInterfaz()
@@ -161,10 +162,11 @@ class grafica:
         return self.fig
         
         
-    def diagramaHR(self, bp_rp, phot_g_mean_mag, radius, interfaz=False,guardar=True, tempt=False, zoom=False):
+    def diagramaHR(self, bp_rp, phot_g_mean_mag, radius, interfaz=False,guardar=False, tempt=False, zoom=False):
 
         self.reiniciarFigura()
         self.llamadaInterfaz()
+        self.interfaz=interfaz
         
         vmin=35000
         vmax=2000
@@ -268,8 +270,13 @@ class grafica:
         
             x1,x2=self.ax.get_xlim()
             y1,y2=self.ax.get_ylim()
-        
-            escala=min(x2-x1, y2-y1)/10
+            
+            if radioE >3:
+            
+                escala=min(x2-x1, y2-y1)/25
+                
+            else:
+                escala=min(x2-x1, y2-y1)/10
         
             if str(radioP[val]) != "nan":
                 circ = plt.Circle((x[0], y[0]), radius=escala*radioP[val]*radTierra, color="b", fill = True)
