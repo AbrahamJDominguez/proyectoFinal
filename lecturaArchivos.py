@@ -174,14 +174,15 @@ class lecturaArchivos:
                 ruta = self.ventanaArchivo()
                 
             colores = {}
-            with open (ruta, "r") as archivo:
+            with open (ruta, "r", encoding="utf8") as archivo:
                 for line in archivo:
                     line = line.strip()
-                    col = line.split(" ")
+                    col = line.split("  ")
                     if col[1] == "10deg":
+                        print("hola")
                         col[0] = float(col[0].split(" ")[0])
                         colores[col[0]] = col[-1]
-                    
+               
             return colores
         except FileNotFoundError:
             return []

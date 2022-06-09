@@ -206,30 +206,48 @@ def creaArchivoWikiTabla(tabla, nombre="constelaciones", ruta=""):
         
     with open(ruta+nombre+".csv", "wb") as archivo:
         archivo.write(cadena)
+        
+def tablaClaseEspc():
+    URL="http://www.isthe.com/chongo/tech/astro/HR-temp-mass-table-byhrclass.html"
+    pag=requests.get(URL)
+    contenido=BeautifulSoup(pag.content, "lxml")
+    tabla=contenido.find_all("table")[2]
+    tab=pd.read_html(str(tabla))[0]
+    #tab.pop(0)
+    tab_t=tab.T
+    
+    for i in tab_t:
+        if str(tab_t[i][1]) == "nan":
+            tab_t.pop(i)
+            
+    tab=tab_t.T
+    tab.to_csv(r"datosTipoEspectral.csv", index=False)
 
 
 if __name__ == "__main__":
     
     #Ejecutar para crear la base de datos de constelaciones de forma local
     
-    ruta="constelaciones"
+    # ruta="constelaciones"
     
-    if not os.path.isdir(ruta):
-        os.makedirs(ruta)
+    # if not os.path.isdir(ruta):
+    #     os.makedirs(ruta)
     
-    const=obtenerConstelaciones()["Constellation"]
+    # const=obtenerConstelaciones()["Constellation"]
     
-    ruta+="/"
+    # ruta+="/"
     
-    for c in const:
-        if not os.path.isfile(ruta+c+".csv"):
-            creaArchivoWikiTabla(obtenerEstrellasConstelacion(c),c,ruta)
+    # for c in const:
+    #     if not os.path.isfile(ruta+c+".csv"):
+    #         creaArchivoWikiTabla(obtenerEstrellasConstelacion(c),c,ruta)
     
-    const=obtenerConstelaciones()
+    # const=obtenerConstelaciones()
     
-    creaArchivoWikiTabla(const)
+    # creaArchivoWikiTabla(const)
     
-    obtenerEstrellaE("888888")
+    # obtenerEstrellaE("888888")
+    
+    tablaClaseEspc()
     
     #print(obtenerEstrellaE("11_Com"))
     

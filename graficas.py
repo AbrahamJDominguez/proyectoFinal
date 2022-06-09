@@ -28,9 +28,10 @@ class grafica:
             self.fig, self.ax = plt.subplots()
         
     
-    def mapaEstelar(self, ar, dec, objeto=[], indice="", colores=[], teff=[], ob=False, guardar=False, limpiar = False):
+    def mapaEstelar(self, ar, dec, objeto=[], rgb=[], indice="", colores=[], teff=[], ob=False, guardar=False, limpiar = False):
         
         #self.llamadaInterfaz()
+    
         for i in ar:
             if i > 360:
                 ar[ar.index(i)]=i-360
@@ -61,6 +62,12 @@ class grafica:
                     self.ax.scatter(ar[i], dec[i], s=2, color=colores[round(teff[i]*0.01)*100])
                     continue
                 self.ax.scatter(ar[i], dec[i], s=2, color='r')
+                
+        elif teff:
+            for i in range(len(ar)):
+                if teff and colores:
+                    self.ax.scatter(ar[i], dec[i], s=2, color=colores[round(teff[i]*0.01)*100])
+                    continue
                 
         else:
             self.ax.scatter(ar, dec, s=2, color='r')

@@ -1,6 +1,9 @@
 import numpy as np
 import lecturaArchivos as lectura
 import graficas as graf
+import os
+import re
+import pandas as pd
 #ruta = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/"
 ruta = ""#"C:/Users/sandy/Documents/Pooye/proyectoFinal-main"
 lectura = lectura.lecturaArchivos(ruta)
@@ -47,14 +50,19 @@ class objetoEstelar():                      # Clase padre
         self.dec = decObjeto
         
     def crearMapaEstelar(self, teff, objeto):
-        graficas = graf.grafica()        
+        graficas = graf.grafica()
+        
+        colores=[]
+        if os.path.isfile("coloresCuerpoNegro.txt"):
+            colores=lectura.obtenerColoresCuerpoN("coloresCuerpoNegro.txt")
+            
         if teff: 
-            graficas.mapaEstelar(self.ar, self.dec, [], indice = '', colores = [], teff=teff, ob = True, guardar = False )
+            graficas.mapaEstelar(self.ar, self.dec, [], indice = '', colores = colores, teff=teff, ob = True, guardar = False )
             
         elif objeto: 
-            graficas.mapaEstelar(self.ar, self.dec, objeto = objeto, indice = '', colores = [], teff=[], ob = False, guardar = False )
+            graficas.mapaEstelar(self.ar, self.dec, objeto = objeto, indice = '', colores = colores, teff=[], ob = False, guardar = False )
         else:
-            graficas.mapaEstelar(self.ar, self.dec, [], indice = '', colores = [], teff=[], ob = False, guardar = False )
+            graficas.mapaEstelar(self.ar, self.dec, [], indice = '', colores = colores, teff=[], ob = False, guardar = False )
         
         
     
@@ -203,14 +211,37 @@ class constelacion(objetoEstelar):
         datos = constel[laConste+'.csv']
         ar = []
         dec = []
+        datosAdicionales=[]
+        teff=[]
         for i in datos:
             ar.append(i[0])
             dec.append(i[1])
+        
+        if os.path.isfile("datosTipoEspectral.csv"):
+            tiposEspc=pd.read_csv("datosTipoEspectral.csv")
+            for j in datos:
+                cond=False
+                for i in tiposEspc["StellarType"]:
+                    if re.match(str(j[3]).upper(), i):
+                        ind=list(tiposEspc["StellarType"]).index(i)
+                        rgb=tiposEspc["Star ColorRGB 0-255"][ind]
+                        rad=tiposEspc["RadiusRstar/Rsun"][ind]
+                        temp=float(tiposEspc["TempK"][ind])
+                        cond=True
+                        break
+                    else:
+                        temp=7000
+                if cond:
+                    datosAdicionales.append((ind, rgb, rad, temp))
+                else:
+                    teff.append(temp)
+            
+                
         print("¿Qué deseas hacer?\n1.Mapa Estelar de todas las estrellas disponibles dentro de la constelación")
         opcion = int(input("Elección: "))
         if opcion == 1:
             objeto = objetoEstelar(ar, dec, [])
-            objeto.crearMapaEstelar([], [])
+            objeto.crearMapaEstelar(teff, [])
         # Graficar la posición de la constelación elegida con respecto a nosotros y las constelaciones que colindan con ella.
         # Sugerencia: preguntar al usuario si quiere ver un mapa con las contelaciones cercanas al objeto elegido
 
