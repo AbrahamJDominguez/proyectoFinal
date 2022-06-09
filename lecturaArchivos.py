@@ -2,6 +2,7 @@
 """
 Created on Sat May 21 20:45:28 2022
 
+@author: Abrah
 """
 ############ MODULO DE LECTURA DE ARCHIVOS ##############
 import csv
@@ -12,14 +13,14 @@ import os
 import glob
 import utilidades as Util
 
-ruta="C:/Users/sandy/Documents/Pooye/proyectoFinal-main/"
-#ruta = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/"
+#ruta="C:/Users/sandy/Documents/Pooye/proyectoFinal-main/"
+ruta = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/"
 
 """ Cambiar esta dirección a donde estén los archivos messiersGaia y constelaciones:"""
-rutaMessiers="messiersGaia/"
-rutaConste="constelaciones/"
-#rutaMessiers = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/messiersGaia/"
-#rutaConste = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/constelaciones/"
+#rutaMessiers="C:/Users/sandy/Documents/Pooye/proyectoFinal-main/messiersGaia/"
+#rutaConste="C:/Users/sandy/Documents/Pooye/proyectoFinal-main/constelaciones/"
+rutaMessiers = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/messiersGaia/"
+rutaConste = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/constelaciones/"
 
 
 class lecturaArchivos:
@@ -71,7 +72,21 @@ class lecturaArchivos:
         cambioRA, cambioDEC = [], []
         datos=pd.read_csv(name, sep=sep, encoding=enc)
         
+        """ Arregla el problema de m- y ms- """
         for value in range(len(datos['ra'])):    
+            if "m-" in datos['ra'][value]:
+                i = datos['ra'][value]
+                i= i.split("-")
+                i[0] = i[0].replace("m","")
+                datos['ra'][value] = i[0]
+                datos['dec'][value] = i[1]
+            if "s-" in datos['ra'][value]:
+                i = datos['ra'][value]
+                i= i.split("-")
+                i[0] = i[0].replace("s","")
+                #i[1] = i[1].replace(" " ","")
+                datos['ra'][value] = i[0]
+                datos['dec'][value] = i[1]
             cambioRA.append(Util.tiempoaGrados(datos['ra'][value], 'ra'))
             cambioDEC.append(Util.tiempoaGrados(datos['dec'][value], 'dec'))
         
@@ -87,8 +102,8 @@ class lecturaArchivos:
         
         Pl=[]
         # "ra" y "dec" ya están en grados, en lugar de "rastr" y "decstr" que están en h/m/s 
-        for i,j,k,n,m,o,p,q,r,s,t in zip(datos["ra"], datos["dec"], datos["hostname"], datos["sy_snum"], datos["sy_pnum"], datos["pl_orbsmax"], datos["pl_rade"], datos["pl_bmasse"], datos["pl_orbeccen"], datos['st_rad'], datos['pl_name']):
-            Pl.append((i,j,k,n,m,o,p,q,r,s,t))
+        for i,j,k,n,m,o,p,q,r,s in zip(datos["ra"], datos["dec"], datos["hostname"], datos["sy_snum"], datos["sy_pnum"], datos["pl_orbsmax"], datos["pl_rade"], datos["pl_bmasse"], datos["pl_orbeccen"], datos['pl_name']):
+            Pl.append((i,j,k,n,m,o,p,q,r,s))
             
         return Pl
     
@@ -107,7 +122,7 @@ class lecturaArchivos:
             
         return Cn
     
-    def lecturaMessier(self, name,sep,enc, depurar=False): # Estrellas cercanas a objetos Messier
+    def lecturaMessier(self, name,sep,enc): # Estrellas cercanas a objetos Messier
         listaMessier = []
         EM = {}
         
@@ -119,16 +134,13 @@ class lecturaArchivos:
             datos=pd.read_csv(name+num, sep=sep, encoding=enc)
             M = []
             
-            for i,j,k,l,n in zip(datos["ra"], datos["dec"], datos["parallax"], datos["bp_rp"], datos["teff_val"]):
-                if not depurar:
-                    M.append((i,j,k,l,n))
-                    
-                else:
-                    for i,j,k,l,n in zip(datos["ra"], datos["dec"], datos["parallax"], datos["bp_rp"], datos["teff_val"]):
-                        """ Para depurar la lista """
-                        if str(l) != 'nan':
-                            if str(n) != 'nan':
-                                M.append((i,j,k,l,n))
+            
+            
+            for i,j,k,a,m,l,n in zip(datos["ra"], datos["dec"], datos["parallax"],datos['phot_g_mean_mag'], datos['radius_val'], datos["bp_rp"], datos["teff_val"]):
+                """ Para depurar la lista """
+                if str(l) != 'nan':
+                    if str(n) != 'nan':
+                        M.append((i,j,k,a,m,l,n))
                 
             EM[num]=M
         
@@ -160,43 +172,6 @@ class lecturaArchivos:
             EC[num] = C
         
         return EC
-    
-    def ventanaArchivo(self):
-        root=tkinter.Tk()
-        root.withdraw()
-        ruta=filedialog.askopenfilename() 
-    	
-        return ruta
-    
-    def obtenerColoresCuerpoN(self, ruta = ""):
-        try:
-            if ruta == "":
-                ruta = self.ventanaArchivo()
-                
-            colores = {}
-            with open (ruta, "r", encoding="utf8") as archivo:
-                for line in archivo:
-                    line = line.strip()
-                    col = line.split("  ")
-                    if col[1] == "10deg":
-                        print("hola")
-                        col[0] = float(col[0].split(" ")[0])
-                        colores[col[0]] = col[-1]
-               
-            return colores
-        except FileNotFoundError:
-            return []
-        
-    def coloresCuerpoNegro(self, ruta=""):
-        
-        if not ruta:
-            global colores
-            
-            return colores
-        
-        else:
-            colores=self.obtenerColoresCuerpoN(ruta)
-            return colores
         
 if __name__=="__main__":
     lectura=lecturaArchivos(ruta)
@@ -204,5 +179,8 @@ if __name__=="__main__":
     #pulsares = lectura.lecturaPulsar(name[1], sep[1], enc[1])
     constelacion=lectura.lecturaCatalogoM(name[0], sep[0], enc[0])
     planetas=lectura.lecturaPlaneta(name[2], sep[2], enc[2])
-    print(planetas)
-    #print(constelacion['Hercules.csv'] """
+    pulsares = lectura.lecturaPulsar(name[1], sep[1], enc[1])
+    messier = lectura.lecturaMessier(name[4], sep[4], enc[4])
+    est = lectura.estrellasXConstelacion(name[5], sep[5], enc[5])
+    print(messier['M7.csv'])
+    #print(est['Hercules.csv'])

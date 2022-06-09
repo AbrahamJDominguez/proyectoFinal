@@ -2,7 +2,7 @@
 
 from astroquery.gaia import Gaia
 from utilidades import tiempoaGrados
-from lecturaArchivos import lecturaCatalogoM
+from lecturaArchivos import lecturaArchivos
 import os
 
 
@@ -29,7 +29,7 @@ def solicitaDatosGaia(x1,x2,y1,y2=None,tipo="cuadro", n=2000):
                                   AND {y2} AND teff_val > 0) "
                               ")")
             
-            #print(job.get_results().keys())
+            print(job.get_results().keys())
             
             return job.get_results()
     
@@ -75,23 +75,28 @@ def solicitaMessiersGaia(messier):
         
     
 if __name__=="__main__":
-    solicitaDatosGaia(1,2,3,4)
+    # solicitaDatosGaia(1,2,3,4)
+    job = Gaia.launch_job("select top 100 "
+                      "solution_id,ref_epoch,ra_dec_corr,astrometric_n_obs_al, "
+                      "matched_observations,duplicated_source,phot_variable_flag "
+                      "from gaiadr2.gaia_source order by source_id")
     
-    messiers=lecturaCatalogoM("")
-    #print(messiers)
+    # messiers=lecturaArchivos("").lecturaCatalogoM("MessierCatalogList.csv",",","utf-8")
+    # # solicitaDatosGaia(0, 10, 2)
+    # print(messiers)
     
-    ruta="messiersGaia"
+    # ruta="messiersGaia"
     
-    if not os.path.isdir(ruta):
-        os.makedirs(ruta)
+    # if not os.path.isdir(ruta):
+    #     os.makedirs(ruta)
     
-    for m in range(len(messiers)):
-        if not os.path.isfile(f"messiersGaia/M{m+1}.csv"):
-            tabla=solicitaMessiersGaia(messiers[m])
-            tabla.write(f"messiersGaia/M{m+1}.csv", format="ascii.csv")
+    # for m in range(len(messiers)):
+    #     if not os.path.isfile(f"messiersGaia/M{m+1}.csv"):
+    #         tabla=solicitaMessiersGaia(messiers[m])
+    #         tabla.write(f"messiersGaia/M{m+1}.csv", format="ascii.csv")
         
-    # print(f"SELECT Top {n} ra, dec, teff_val "
-    #                   "from gaiadr2.gaia_source "
-    #                   "WHERE ( "
-    #                   f"(ra BETWEEN {x1} AND {x2} AND dec BETWEEN {y1} AND {y2} AND teff_val > 0) "
-    #                   ")")
+    # # print(f"SELECT Top {n} ra, dec, teff_val "
+    # #                   "from gaiadr2.gaia_source "
+    # #                   "WHERE ( "
+    # #                   f"(ra BETWEEN {x1} AND {x2} AND dec BETWEEN {y1} AND {y2} AND teff_val > 0) "
+    # #                   ")")

@@ -4,6 +4,9 @@ import graficas as graf
 import os
 import re
 import pandas as pd
+import math
+import copy
+
 #ruta = "C:/Users/cimen/Documents/POOE/proyectoFinal-main/"
 ruta = ""#"C:/Users/sandy/Documents/Pooye/proyectoFinal-main"
 lectura = lectura.lecturaArchivos(ruta)
@@ -67,16 +70,17 @@ class objetoEstelar():                      # Clase padre
         
     
 class objetoLuminoso(objetoEstelar): ## modulo para estrellas cercanas a messier
-    def __init__(self,ar, dec, radio, temp_eff, m_absoluta):
+    def __init__(self,ar, dec, radio, temp_eff):
         objetoEstelar.__init__(self,ar,dec,radio)
         self.temp_eff = temp_eff
-        self.m_absoluta = m_absoluta
         
-    def crearRadiacionCN():
-        pass
+    def crearRadiacionCN(self, teff, tempMax, colores):
+        graficas = graf.grafica()  
+        graficas.radiacionCuerpoN(teff, tempMax, colores = colores)
     
-    def crearDiagramaHR():
-        pass
+    def crearDiagramaHR(self, bp_rp, phot_g_mean_mag, radius, tempt, zoom):
+        graficas = graf.grafica()
+        graficas.diagramaHR(bp_rp, phot_g_mean_mag, radius, tempt, zoom)
         
 
 
@@ -113,9 +117,8 @@ class Planeta(objetoEstelar):
         self.nomE=nomE                  ## Nombre de la estrella
         
         print("Este es el numero de estrellas", self.numE)
-        print("Este es el numero de estrellas", self.nomE)
         
-    def pl(self):
+    def pl(self, interfaz=False):
         print("\n\n*****Estás en el módulo planeta******")
         planetas = lectura.lecturaPlaneta(name[2], sep[2], enc[2])
         ar = []
@@ -124,13 +127,16 @@ class Planeta(objetoEstelar):
         for i in planetas:
             ar.append(i[0])
             dec.append(i[1])
-        print("¿Qué deseas hacer?\n1. Mapa Estelar de todos los planetas disponibles")
-        opcion = int(input("Selección: "))
-        if opcion == 1:
-            objeto = objetoEstelar(ar,dec, [])
-            #objeto.crearMapaEstelar([], objeto) ### no toma objeto como debería para graficar el punto rojo del planeta
-            objeto.crearMapaEstelar([], [])
-        
+            
+        if not interfaz:
+            print("¿Qué deseas hacer?\n1. Mapa Estelar de todos los planetas disponibles")
+            opcion = int(input("Selección: "))
+            if opcion == 1:
+                objeto = objetoEstelar(ar,dec, [])
+                #objeto.crearMapaEstelar([], objeto) ### no toma objeto como debería para graficar el punto rojo del planeta
+                objeto.crearMapaEstelar([], [])
+        else:
+            pass
         # Gráfica que compare masas/ radios de planetas conocidos
         # Muestre los datos del sistema donde se encuentra (número de estrellas, planetas, nombres, etc.)
         # Genera gráfica de sistema planetario
@@ -166,7 +172,7 @@ class messier(objetoEstelar):
     #    print("Estás en el módulo messiers, qué deseas hacer?")
     #    print(self.ar,self.dec)
         
-    def estrella(self,messier):
+    def estrella(self,messier, interfaz=False):
         print("\n\n*****Estás en el modulo de estrellas cercanas al messier****")
         estrellasM = lectura.lecturaMessier(name[4], sep[4], enc[4])
         #print(estrellasM[messier+".csv"])
@@ -174,15 +180,129 @@ class messier(objetoEstelar):
         ar = []
         dec = []
         teff = []
+        parallax = []
+        radius = []
+        bp = []
+        photon = []
+        g_abs = []
         for i in datos:
             ar.append(i[0])
             dec.append(i[1])
             teff.append(i[-1])
-        print("¿Qué deseas hacer?\n1. Mapa Estelar de todas las estrellas disponibles dentro del messier")
-        opcion = int(input("Selección: "))
-        if opcion == 1:
-            objeto = objetoEstelar(ar,dec, [])
-            objeto.crearMapaEstelar(teff, [])
+            parallax.append(i[2])
+            photon.append(i[3])
+            radius.append(i[4])
+            bp.append(i[5])
+        
+        for i in range(len(parallax)):
+            g_abs.append(photon[i] + 5 + 5*math.log10(abs(parallax[i])/1000))
+            
+        def depurar_teff(teff, g_abs, radius):
+            
+            g_abs1=copy.copy(g_abs)
+            radius1=copy.copy(radius)
+            
+            while "" in teff:
+                cont=0
+                
+                for val in teff:
+                    
+                    if not val:
+                        teff.pop(cont)
+                        g_abs1.pop(cont)
+                        radius1.pop(cont)
+                        
+                    cont+=1
+            
+            return teff, g_abs1, radius1
+
+        def depurar_bp_rp(bp_rp, g_abs, radius):
+            
+            g_abs2=copy.copy(g_abs)
+            radius2=copy.copy(radius)
+
+            while "" in bp_rp:
+                cont=0
+                
+                for val in bp_rp:
+                    
+                    if not val:
+                        bp_rp.pop(cont)
+                        g_abs2.pop(cont)
+                        radius2.pop(cont)
+                        
+                    cont+=1
+                    
+            return bp_rp, g_abs2, radius2
+            
+        def depurarDiagrama(self,radius, bp, photon, teff ,g_abs, parallax):
+            opcion=int(input("""¿Qué diagrama H-R desea generar?
+1. H-R de las estrellas con temperaturas efectivas conocidas.
+2. H-R con el color BP-RP.
+3. Ambos.
+Selección: """))
+            objetoLum = objetoLuminoso('ar', 'dec', 'radio', 'temp_eff')
+            if opcion==1:
+                
+                teff1, g_abs1, radius1=depurar_teff(teff, g_abs, radius)
+                objetoLum.crearDiagramaHR(teff1, g_abs1, radius1,tempt=True, zoom=True)
+                #graficas.diagramaHR(teff1, g_abs1, radius1, tempt=True, zoom=True)
+                
+            elif opcion==2:
+                
+                bp_rp2, g_abs2, radius2=depurar_bp_rp(bp, g_abs, radius)
+                objetoLum.crearDiagramaHR(bp_rp2, g_abs2, radius2, tempt = False, zoom = False)
+                #graficas.diagramaHR(bp_rp2, g_abs2, radius2)
+            
+            else:
+                bp, g_abs2, radius2=depurar_bp_rp(bp, g_abs, radius)
+                objetoLum.crearDiagramaHR(bp, g_abs2, radius2, tempt = False, zoom = False)
+                #graficas.diagramaHR(bp, g_abs2, radius2)
+                teff, g_abs1, radius1=depurar_teff(teff, g_abs, radius)
+                objetoLum.crearDiagramaHR(teff, g_abs1, radius1, tempt=True, zoom=True)
+                #graficas.diagramaHR(teff, g_abs1, radius1, tempt=True, zoom=True)
+        
+        c=0
+        for temp in teff:
+            if c==0:
+                tempMax=temp
+            elif c>0 and not isinstance(temp,str):
+                if(temp>tempMax):
+                   tempMax=temp 
+                else:
+                    tempMax=tempMax
+            c+=1
+            
+            """ Obtener los colores de cuerpo negro """
+        rutaCuerpoNegro = ""#"C:/Users/cimen/Documents/POOE/proyectoFinal-main/coloresCuerpoNegro.txt"   
+        colores = self.obtenerColoresCuerpoN(rutaCuerpoNegro)
+        
+        if not interfaz:
+                
+            print("¿Qué deseas hacer?\n1. Mapa Estelar de todas las estrellas disponibles dentro del messier\n2. Digrama de cuerpo negro\n3. Diagramas H-R")
+            opcion = int(input("Selección: "))
+            if opcion == 1:
+                objeto = objetoEstelar(ar,dec, [])
+                objeto.crearMapaEstelar(teff, [])
+            elif opcion == 2:
+                objetoLum = objetoLuminoso("ar", "dec", "radio", "teff")
+                objetoLum.crearRadiacionCN(teff, tempMax, colores)
+            elif opcion == 3:
+                depurarDiagrama(self, radius, bp, photon, teff, g_abs, parallax)
+                
+        else:
+            pass
+
+    def obtenerColoresCuerpoN(self, ruta):
+        colores = {}
+        with open (ruta, "r") as archivo:
+            for line in archivo:
+                line = line.strip()
+                col = line.split(" ")
+                if "10deg" in col: 
+                    col[0] = float(col[0])
+                    colores[col[0]] = col[-1] 
+        return colores
         
 
 class constelacion(objetoEstelar):
@@ -204,7 +324,7 @@ class constelacion(objetoEstelar):
         lec=lectura.lecturaArchivos("")
         Cn=lec.lecturaPlaneta(name,sep,enc)'''
         #print(Cn)
-    def const(self, laConste):
+    def const(self, laConste, interfaz=False):
         print("\n\n******Estás en el módulo constelacion******")
         constel = lectura.estrellasXConstelacion(name[5], sep[5], enc[5])
         #print(constel[laConste+".csv"])
@@ -235,15 +355,19 @@ class constelacion(objetoEstelar):
                     datosAdicionales.append((ind, rgb, rad, temp))
                 else:
                     teff.append(temp)
+                    
+        if not interfaz:
+                    
+            print("¿Qué deseas hacer?\n1.Mapa Estelar de todas las estrellas disponibles dentro de la constelación")
+            opcion = int(input("Elección: "))
+            if opcion == 1:
+                objeto = objetoEstelar(ar, dec, [])
+                objeto.crearMapaEstelar(teff, [])
+            # Graficar la posición de la constelación elegida con respecto a nosotros y las constelaciones que colindan con ella.
+            # Sugerencia: preguntar al usuario si quiere ver un mapa con las contelaciones cercanas al objeto elegido
             
-                
-        print("¿Qué deseas hacer?\n1.Mapa Estelar de todas las estrellas disponibles dentro de la constelación")
-        opcion = int(input("Elección: "))
-        if opcion == 1:
-            objeto = objetoEstelar(ar, dec, [])
-            objeto.crearMapaEstelar(teff, [])
-        # Graficar la posición de la constelación elegida con respecto a nosotros y las constelaciones que colindan con ella.
-        # Sugerencia: preguntar al usuario si quiere ver un mapa con las contelaciones cercanas al objeto elegido
+        else:
+            pass
 
         
 if __name__=="__seleccionObjeto__":

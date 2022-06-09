@@ -62,7 +62,7 @@ def datosIniciales():
     pulsares = lectura.lecturaPulsar(name[1], sep[1], enc[1]) 
     planetas = lectura.lecturaPlaneta(name[2], sep[2], enc[2])
     constelaciones = lectura.lecturaConstelacion(name[3], sep[3], enc[3])
-    #estrellasM = lectura.lecturaMessier(name[4], sep[4], enc[4])
+    estrellasM = lectura.lecturaMessier(name[4], sep[4], enc[4])
     
     messAr = []
     messDec = []

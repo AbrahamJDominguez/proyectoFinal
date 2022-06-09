@@ -14,9 +14,11 @@ ds=1/3600
 conv={"h":dh,"m":dm,"s":ds,"d":dd}
 
 #def tiempoaGrados(cadena, tipo = "dec"):
-def tiempoaGrados(cadena, tipo):
+def tiempoaGrados(cadena, tipo="dec"):
     neg=False
     esc=1
+    
+    cadena=str(cadena)
     
     cadena=cadena.replace(u"\xa0",u" ")
     
