@@ -305,7 +305,7 @@ class messier(objetoEstelar):
                 objeto = objetoEstelar(ar,dec, [])
                 objeto.crearMapaEstelar(teff, [])
             elif opcion == 2:
-                objetoLum = objetoLuminoso("ar", "dec", "radio", "teff")
+                objetoLum = objetoLuminoso("ar", "dec", "radio", "teff", "m_absoluta")
                 objetoLum.crearRadiacionCN(teff, tempMax, colores)
             elif opcion == 3:
                 depurarDiagrama(self, radius, bp, photon, teff, g_abs, parallax)
