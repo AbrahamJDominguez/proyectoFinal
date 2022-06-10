@@ -14,7 +14,7 @@ def creaBasePulsar():
     try:
         soup=BeautifulSoup(pag.content,"lxml")
     except:
-        soup=BeautifulSoup(pag.content)
+        soup=BeautifulSoup(pag.content, "html.parser")
     
     tabla=soup.find("table")
 

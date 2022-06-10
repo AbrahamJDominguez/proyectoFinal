@@ -59,7 +59,7 @@ def obtenerEstrellaE(nombre):
     try:
         soup=BeautifulSoup(pag.content,"lxml")
     except:
-        soup=BeautifulSoup(pag.content)
+        soup=BeautifulSoup(pag.content,"html.parser")
     
     for tag in soup.find_all(class_="reference"):
             tag.decompose()
@@ -120,7 +120,7 @@ def obtenerConstelaciones():
     try:
         contenido=BeautifulSoup(pag.content,"lxml")
     except:
-        contenido=BeautifulSoup(pag.content)
+        contenido=BeautifulSoup(pag.content, "html.parser")
     #contenido.encode("utf-8")
     
     pag.close()
@@ -159,7 +159,7 @@ def obtenerEstrellasConstelacion(constelacion):
     try:
         contenido=BeautifulSoup(pag.content,"lxml")
     except:
-        contenido=BeautifulSoup(pag.content)
+        contenido=BeautifulSoup(pag.content, "html.parser")
         
     print(pag.apparent_encoding)
     #contenido.encode("utf-8")
@@ -226,7 +226,7 @@ def tablaClaseEspc():
     try:
         contenido=BeautifulSoup(pag.content,"lxml")
     except:
-        contenido=BeautifulSoup(pag.content)
+        contenido=BeautifulSoup(pag.content, "html.parser")
         
     tabla=contenido.find_all("table")[2]
     tab=pd.read_html(str(tabla))[0]
