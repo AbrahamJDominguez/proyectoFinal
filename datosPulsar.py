@@ -34,7 +34,7 @@ def creaBasePulsar():
     return tabla_i
     
 if __name__ == "__main__":
-    creaBasePulsar()
+    #creaBasePulsar()
     
     if not os.path.isfile("pulsar.csv"):
         creaArchivoWikiTabla(creaBasePulsar(),"pulsar","")

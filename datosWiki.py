@@ -166,7 +166,7 @@ def obtenerEstrellasConstelacion(constelacion):
         print("Se recomienda instalar el paquete lxml con el comando pip install lxml")
         contenido=BeautifulSoup(pag.content, "html.parser")
         
-    print(pag.apparent_encoding)
+    print(f"Archivo de constelación {constelacion} creado")
     #contenido.encode("utf-8")
     
     pag.close()
