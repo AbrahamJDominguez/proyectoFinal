@@ -20,6 +20,7 @@ def tiempoaGrados(cadena, tipo="dec"):
     
     cadena=str(cadena)
     
+    cadena=cadena.replace("−", "-")
     cadena=cadena.replace(u"\xa0",u" ")
     
     if cadena[0] == "-":
