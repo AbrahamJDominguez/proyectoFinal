@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
 import os
+import re
 
 #URL = "https://en.wikipedia.org/wiki/List_of_stars_in_Andromeda"
 #URL = "https://en.wikipedia.org/wiki/14_And"
@@ -166,8 +167,8 @@ def obtenerEstrellasConstelacion(constelacion):
         print("Se recomienda instalar el paquete lxml con el comando pip install lxml")
         contenido=BeautifulSoup(pag.content, "html.parser")
         
-    print(f"Archivo de constelación {constelacion} creado")
-    #contenido.encode("utf-8")
+    #print(f"Archivo de constelación {constelacion} creado")
+    contenido.encode("utf-8")
     
     pag.close()
     
@@ -245,6 +246,33 @@ def tablaClaseEspc():
             
     tab=tab_t.T
     tab.to_csv(r"datosTipoEspectral.csv", index=False)
+    
+def creaBasePulsar():
+    URL="http://www.johnstonsarchive.net/relativity/binpulstable.html"
+    
+    pag=requests.get(URL)
+    
+    try:
+        soup=BeautifulSoup(pag.content,"lxml")
+    except:
+        print("Se recomienda instalar el paquete lxml con el comando pip install lxml")
+        soup=BeautifulSoup(pag.content, "html.parser")
+    
+    tabla=soup.find("table")
+
+    cambio=str(tabla).replace("right ascension<br/>declination", "ra</th><th>dec")
+    cambio=cambio.replace("<colgroup><col/><col align=\"left\"/><col align=\"right\"/><col/><col align=\"left\"/><col align=\"left\"/><col align=\"right\"/><col align=\"right\"/></colgroup>",
+                          "")
+    
+    cambio=cambio.replace(r"hm","h")
+    cambio=re.sub(r"ms<br/>","m</td><td>",cambio)
+    cambio=re.sub(r"[^a-z]h<br/>","h</td><td>",cambio)
+    cambio=re.sub(r"[^a-z]m<br/>","m</td><td>",cambio)
+    cambio=re.sub(r"[^a-z]s<br/>","s</td><td>",cambio)
+    
+    tabla_i=pd.read_html(cambio)[0]
+    
+    return tabla_i
 
 
 if __name__ == "__main__":
@@ -260,6 +288,7 @@ if __name__ == "__main__":
     
     ruta+="/"
     
+    i=1
     for c in const:
         if not os.path.isfile(ruta+c+".csv"):
             creaArchivoWikiTabla(obtenerEstrellasConstelacion(c),c,ruta)
@@ -271,6 +300,14 @@ if __name__ == "__main__":
 
     
     tablaClaseEspc()
+    try:
+        if not os.path.isfile("pulsar.csv"):
+            creaArchivoWikiTabla(creaBasePulsar(),"pulsar","")
+            
+        print("Datos pulsar creado")
+    except:
+        print("No se pudo crear base de datos de pulsar, podria haber errores en la "
+                       "ejecucion")
     
     
     

@@ -110,13 +110,13 @@ def creacionBases():
             print("No se pudo crear base de datos de messiers, podria haber errores en la "
                   "ejecucion")
             
-    if os.path.isfile("datosPulsar.py") and not os.path.isfile("pulsar.csv"):
-        try:
-            exec(open("datosPulsar.py").read(),{'__name__':'__main__'})
-            print("Datos pulsar creado")
-        except:
-            print("No se pudo crear base de datos de pulsar, podria haber errores en la "
-                  "ejecucion")
+    # if os.path.isfile("datosPulsar.py") and not os.path.isfile("pulsar.csv"):
+    #     try:
+    #         exec(open("datosPulsar.py").read(),{'__name__':'__main__'})
+    #         print("Datos pulsar creado")
+    #     except:
+    #         print("No se pudo crear base de datos de pulsar, podria haber errores en la "
+    #               "ejecucion")
         
         
 if __name__=="__main__":
