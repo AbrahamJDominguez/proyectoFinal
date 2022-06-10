@@ -514,7 +514,7 @@ class ventanaPrincipal(tk.Tk):
                     figuracanvas.draw()
                     figuracanvas.get_tk_widget().place(relx=0.05, rely=0, relheight=1, relwidth=0.9) 
                 
-            self.__cambio = False
+        self.__cambio = False
             
             
         
@@ -569,7 +569,10 @@ class main_():
     def __init__(self):
         self._iniciarInterfaz()
         self._actualizarPantalla()
-        self._gui.mainloop()
+        
+        if self._gui:
+            self._gui.mainloop()
+            
 
     def _iniciarInterfaz(self):
         self._gui=ventanaPrincipal()
@@ -584,9 +587,14 @@ class main_():
     
 if __name__ == "__main__":
     
+    import sys
     creacionBases()      
     
     main_()
+    
+    print("Cerrando")
+    sys.exit()
+    
     # raiz=ventanaPrincipal()
     # raiz.mainloop()
     

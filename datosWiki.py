@@ -54,9 +54,12 @@ def obtenerEstrellaE(nombre):
     #obtenemos el html de la pagina
     nombre=nombre.replace(" ", "_").replace(u"\xa0",u" ")
     URL = "https://en.wikipedia.org/wiki/"+nombre
-    page = requests.get(URL)
+    pag = requests.get(URL)
     
-    soup = BeautifulSoup(page.content, "lxml")
+    try:
+        soup=BeautifulSoup(pag.content,"lxml")
+    except:
+        soup=BeautifulSoup(pag.content)
     
     for tag in soup.find_all(class_="reference"):
             tag.decompose()
@@ -112,7 +115,12 @@ def obtenerConstelaciones():
     
     print(pag.apparent_encoding)
 
-    contenido=BeautifulSoup(pag.content, "lxml")
+    #contenido=BeautifulSoup(pag.content, "lxml")
+    
+    try:
+        contenido=BeautifulSoup(pag.content,"lxml")
+    except:
+        contenido=BeautifulSoup(pag.content)
     #contenido.encode("utf-8")
     
     pag.close()
@@ -148,7 +156,11 @@ def obtenerEstrellasConstelacion(constelacion):
     url="https://en.wikipedia.org/wiki/List_of_stars_in_"+constelacion
     pag=requests.get(url)
 
-    contenido=BeautifulSoup(pag.content, "lxml")
+    try:
+        contenido=BeautifulSoup(pag.content,"lxml")
+    except:
+        contenido=BeautifulSoup(pag.content)
+        
     print(pag.apparent_encoding)
     #contenido.encode("utf-8")
     
@@ -210,7 +222,12 @@ def creaArchivoWikiTabla(tabla, nombre="constelaciones", ruta=""):
 def tablaClaseEspc():
     URL="http://www.isthe.com/chongo/tech/astro/HR-temp-mass-table-byhrclass.html"
     pag=requests.get(URL)
-    contenido=BeautifulSoup(pag.content, "lxml")
+    
+    try:
+        contenido=BeautifulSoup(pag.content,"lxml")
+    except:
+        contenido=BeautifulSoup(pag.content)
+        
     tabla=contenido.find_all("table")[2]
     tab=pd.read_html(str(tabla))[0]
     #tab.pop(0)

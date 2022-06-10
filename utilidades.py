@@ -113,7 +113,7 @@ def creacionBases():
         try:
             exec(open("datosPulsar.py").read(),{'__name__':'__main__'})
             print("Datos pulsar creado")
-        except:
+        except Exception as e:
             print("No se pudo crear base de datos de pulsar, podria haber errores en la "
                   "ejecucion")
         
