@@ -91,6 +91,7 @@ def isfloat(cadena):
     
 def creacionBases():
     import os
+    print("Los archivos se crearan en la carpeta: ")
     print(os.path.dirname(os.path.realpath(__file__)))
     
     if os.path.isfile("datosWiki.py") and not os.path.isdir("constelaciones"):
@@ -113,7 +114,7 @@ def creacionBases():
         try:
             exec(open("datosPulsar.py").read(),{'__name__':'__main__'})
             print("Datos pulsar creado")
-        except Exception as e:
+        except:
             print("No se pudo crear base de datos de pulsar, podria haber errores en la "
                   "ejecucion")
         
