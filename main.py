@@ -245,7 +245,7 @@ pero el objeto podría estar en alguna de las siguientes constelaciones:""")
                  def anim(i):
                      return func(i)
                  
-                 ani = FuncAnimation(fig, anim , repeat=True)
+                 ani = FuncAnimation(fig, anim, frames=72 , repeat=True)
                  
                  plt.show()
             else:

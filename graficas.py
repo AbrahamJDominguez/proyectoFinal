@@ -257,17 +257,21 @@ class grafica:
         self.reiniciarFigura()
         self.llamadaInterfaz()
         
+        circs=[]
+        b=[]
+        lineas=[]
+        
         for val in range(len(a)):
-            b = a[val] * np.sqrt(1-e[val]**2)
-            c = a[val]**2 - b**2
+            b.append(a[val] * np.sqrt(1-e[val]**2))
+            c = a[val]**2 - b[-1]**2
             centroAux = ar - c
             
             t = np.linspace(0,360,360)
             x = a[val]*np.cos(np.radians(t)) + centroAux  #a es el eje mayor de la elipse
-            y = b*np.sin(np.radians(t)) + dec #b es el eje menor de la elipse
+            y = b[-1]*np.sin(np.radians(t)) + dec #b es el eje menor de la elipse
         
-            self.ax.plot(x, y, linewidth = 1)
-        
+            lineas.append(self.ax.plot(x, y, linewidth = 1, alpha=0.5)[0])
+            
             x1,x2=self.ax.get_xlim()
             y1,y2=self.ax.get_ylim()
             
@@ -280,22 +284,28 @@ class grafica:
         
             if str(radioP[val]) != "nan":
                 circ = plt.Circle((x[0], y[0]), radius=escala*radioP[val]*radTierra, color="b", fill = True)
+                circs.append(circ)
             
             else:
                 circ = plt.Circle((x[0], y[0]), radius=escala*0.1, color="b", fill = True)
+                circs.append(circ)
         
             self.ax.add_patch(circ)
             
-            def update(i):
+        def update(i):
+        
+            t=i*5
             
-                t=i*5
-            
-                x1 = a[i]*np.cos(np.radians(t)) + centroAux  #a es el eje mayor de la elipse
-                y1 = b*np.sin(np.radians(t)) + dec #b es el eje menor de la elipse
-            
-                circ.center=(x1,y1)
-            
-                return circ
+            for j in range(len(circs)):
+                x1 = a[j]*np.cos(np.radians(t)) + centroAux  #a es el eje mayor de la elipse
+                y1 = b[j]*np.sin(np.radians(t)) + dec #b es el eje menor de la elipse
+                
+                xy=lineas[j].get_data()
+                circs[j].center=(xy[0][t],xy[1][t])
+                
+
+        
+            return circs
             
         if str(radioE) != "nan":
             
