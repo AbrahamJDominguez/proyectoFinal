@@ -91,24 +91,28 @@ def isfloat(cadena):
     
 def creacionBases():
     import os
+    print(os.path.dirname(os.path.realpath(__file__)))
     
     if os.path.isfile("datosWiki.py") and not os.path.isdir("constelaciones"):
         try:
-            exec(open("datosWiki.py").read())
+            exec(open("datosWiki.py").read(),{'__name__':'__main__'})
+            print("Datos constelaciones creado")
         except:
             print("No se pudo crear base de datos de constelaciones,podria haber errores en la "
                   "ejecucion")
             
     if os.path.isfile("datosGaia.py") and not os.path.isdir("messiersGaia"):
         try:
-            exec(open("datosGaia.py").read())
+            exec(open("datosGaia.py").read(),{'__name__':'__main__'})
+            print("Datos messier creado")
         except:
             print("No se pudo crear base de datos de messiers, podria haber errores en la "
                   "ejecucion")
             
     if os.path.isfile("datosPulsar.py") and not os.path.isfile("pulsar.csv"):
         try:
-            exec(open("datosPulsar.py").read())
+            exec(open("datosPulsar.py").read(),{'__name__':'__main__'})
+            print("Datos pulsar creado")
         except:
             print("No se pudo crear base de datos de pulsar, podria haber errores en la "
                   "ejecucion")
