@@ -58,7 +58,9 @@ def obtenerEstrellaE(nombre):
     
     try:
         soup=BeautifulSoup(pag.content,"lxml")
+        
     except:
+        print("Se recomienda instalar el paquete lxml con el comando pip install lxml")
         soup=BeautifulSoup(pag.content,"html.parser")
     
     for tag in soup.find_all(class_="reference"):
@@ -119,7 +121,9 @@ def obtenerConstelaciones():
     
     try:
         contenido=BeautifulSoup(pag.content,"lxml")
+
     except:
+        print("Se recomienda instalar el paquete lxml con el comando pip install lxml")
         contenido=BeautifulSoup(pag.content, "html.parser")
     #contenido.encode("utf-8")
     
@@ -159,6 +163,7 @@ def obtenerEstrellasConstelacion(constelacion):
     try:
         contenido=BeautifulSoup(pag.content,"lxml")
     except:
+        print("Se recomienda instalar el paquete lxml con el comando pip install lxml")
         contenido=BeautifulSoup(pag.content, "html.parser")
         
     print(pag.apparent_encoding)
@@ -226,6 +231,7 @@ def tablaClaseEspc():
     try:
         contenido=BeautifulSoup(pag.content,"lxml")
     except:
+        print("Se recomienda instalar el paquete lxml con el comando pip install lxml")
         contenido=BeautifulSoup(pag.content, "html.parser")
         
     tabla=contenido.find_all("table")[2]

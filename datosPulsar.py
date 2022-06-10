@@ -14,6 +14,7 @@ def creaBasePulsar():
     try:
         soup=BeautifulSoup(pag.content,"lxml")
     except:
+        print("Se recomienda instalar el paquete lxml con el comando pip install lxml")
         soup=BeautifulSoup(pag.content, "html.parser")
     
     tabla=soup.find("table")
