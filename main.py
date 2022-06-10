@@ -256,5 +256,7 @@ pero el objeto podría estar en alguna de las siguientes constelaciones:""")
 # ================================================= Main ======================================================
 # Mandamos llamar funciones
 creacionBases()
-
-datosIniciales()
+while True:
+    datosIniciales()
+    if not input("Presione enter para finalizar o ingrese un caracter para realizar otra accion"):
+        break
